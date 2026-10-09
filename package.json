@@ -1,0 +1,48 @@
+{
+  "name": "gate",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm:start:api\" \"vite\"",
+    "start:api": "node --env-file-if-exists=.env server/index.js",
+    "migrate:mongodb": "node --env-file-if-exists=.env server/scripts/migrate-local-data-to-mongodb.js",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test:email": "node --test server/services/emailNotifications.test.js"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "concurrently": "^10.0.6",
+    "postcss": "^8.5.29",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.52.0",
+    "mongodb": "^6.17.0",
+    "nodemailer": "^10.0.16",
+    "pdfkit": "^0.20.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-helmet-async": "^3.0.0",
+    "react-router-dom": "^7.18.4",
+    "recharts": "^3.10.1"
+  }
+}

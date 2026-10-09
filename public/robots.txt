@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /admin/login
+Disallow: /admin/
+Disallow: /student/
+
+Sitemap: https://www.kinetiqacademy.in/sitemap.xml

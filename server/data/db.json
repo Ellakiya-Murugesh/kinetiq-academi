@@ -1,0 +1,120 @@
+{
+  "users": [
+    {
+      "id": "usr-admin-1",
+      "email": "admin@gateprep.com",
+      "phone": "9876500001",
+      "passwordHash": "$2b$12$YgwSKT7kml/jH1AMPyP.i.hcRH5Q49poy2GzkoSaewoq/V39P2DfG",
+      "name": "Academic Director",
+      "role": "ADMIN",
+      "createdAt": "2026-08-01T10:00:00.000Z",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "usr-student-1",
+      "email": "student@gateprep.com",
+      "phone": "9345663224",
+      "passwordHash": "$2b$12$zg9xP9Z7U/laHXXd6U.tPOgnTC8MEErWX6xZjFx31flj3U0SKyDRu",
+      "name": "liya",
+      "role": "STUDENT",
+      "createdAt": "2026-09-01T12:00:00.000Z",
+      "status": "ACTIVE"
+    }
+  ],
+  "students": [
+    {
+      "id": "std-1001",
+      "userId": "usr-student-1",
+      "name": "liya",
+      "email": "student@gateprep.com",
+      "phone": "9345663224",
+      "exam": "GATE",
+      "subject": "Chemistry",
+      "courseId": "crs-gate-ch-100",
+      "courseName": "GATE Chemistry — 100 Day Program",
+      "enrollmentDate": "2026-09-01",
+      "paymentStatus": "Paid",
+      "accountStatus": "Active",
+      "progress": 64,
+      "classesAttended": 26,
+      "totalClasses": 40,
+      "materialsAccessed": 18,
+      "testsCompleted": 0,
+      "averageScore": 0
+    }
+  ],
+  "courses": [],
+  "enrollments": [],
+  "payments": [
+    {
+      "id": "pay-101",
+      "transactionId": "TXN-GATE-984210",
+      "studentId": "std-1001",
+      "studentName": "Ananya Sharma",
+      "courseName": "GATE Chemistry — 100 Day Program",
+      "amount": 10000,
+      "paymentMethod": "UPI Gateway",
+      "date": "2026-09-01",
+      "status": "Paid"
+    },
+    {
+      "id": "pay-102",
+      "transactionId": "TXN-GATE-984211",
+      "studentId": "std-1002",
+      "studentName": "Rahul Verma",
+      "courseName": "GATE Physics — 100 Day Program",
+      "amount": 10000,
+      "paymentMethod": "Credit Card",
+      "date": "2026-09-05",
+      "status": "Paid"
+    },
+    {
+      "id": "pay-103",
+      "transactionId": "TXN-GATE-984212",
+      "studentId": "std-1003",
+      "studentName": "Priya Nair",
+      "courseName": "CSIR NET Chemistry — 100 Day JRF Program",
+      "amount": 10000,
+      "paymentMethod": "Net Banking",
+      "date": "2026-09-10",
+      "status": "Paid"
+    },
+    {
+      "id": "pay-104",
+      "transactionId": "TXN-GATE-984213",
+      "studentId": "std-1004",
+      "studentName": "Amit Patel",
+      "courseName": "UGC NET Physics — 100 Day Program",
+      "amount": 10000,
+      "paymentMethod": "Bank Transfer (NEFT)",
+      "date": "2026-09-12",
+      "status": "Pending"
+    },
+    {
+      "id": "pay-105",
+      "transactionId": "TXN-GATE-984214",
+      "studentId": "std-1005",
+      "studentName": "Sneha Mukherjee",
+      "courseName": "CSIR NET Physics — 100 Day JRF Program",
+      "amount": 10000,
+      "paymentMethod": "UPI Gateway",
+      "date": "2026-09-15",
+      "status": "Paid"
+    }
+  ],
+  "liveSessions": [],
+  "materials": [],
+  "tests": [],
+  "results": [],
+  "enquiries": [],
+  "announcements": [
+    {
+      "id": "anc-1791364458577",
+      "title": "vbnm",
+      "message": "vbnm,",
+      "audience": "All students",
+      "publishDate": "2026-10-07",
+      "status": "Active"
+    }
+  ]
+}

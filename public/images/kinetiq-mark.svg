@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="markTitle markDesc">
+  <title id="markTitle">Kinetiq Academi</title>
+  <desc id="markDesc">Kinetiq Academi mark</desc>
+  <rect width="128" height="128" rx="28" fill="#082A5E"/>
+  <path d="M38 28V92H52V70L74 92H92L66 68L95 28H78L52 58V28H38Z" fill="#F7D97A"/>
+  <path d="M38 28H52V92H38z" fill="#E9C968" opacity="0.9"/>
+</svg>

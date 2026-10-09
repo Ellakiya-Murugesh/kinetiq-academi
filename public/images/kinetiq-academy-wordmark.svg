@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Kinetiq Academi</title>
+  <desc id="logoDesc">Kinetiq Academi wordmark</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0%" stop-color="#F7D97A"/>
+      <stop offset="100%" stop-color="#D7A83A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="320" rx="24" fill="#F8FAFC"/>
+  <g transform="translate(26,42)">
+    <rect x="0" y="0" width="220" height="220" rx="44" fill="#082A5E"/>
+    <path d="M62 44V166H90V120L128 166H164L126 116L170 44H140L90 98V44H62Z" fill="url(#gold)"/>
+    <path d="M62 44H90V166H62z" fill="#E9C968" opacity="0.9"/>
+  </g>
+  <text x="284" y="164" fill="#082A5E" font-family="Segoe UI, Arial, sans-serif" font-size="84" font-weight="800" letter-spacing="-2">Kinetiq Academi</text>
+</svg>
