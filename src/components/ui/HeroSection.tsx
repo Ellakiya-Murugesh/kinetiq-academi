@@ -35,8 +35,12 @@ export const HeroSection: React.FC = () => {
             {/* Supporting Text */}
             <p className="text-lg sm:text-xl text-gray-600 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
               Build your concepts, practice with confidence, and prepare strategically for competitive exams in{' '}
-              <strong className="text-navy-500 font-semibold">Chemistry</strong> and{' '}
-              <strong className="text-navy-500 font-semibold">Physics</strong> with expert-led online coaching.
+              <strong className="text-navy-500 font-semibold">Chemistry</strong>,{' '}
+              <strong className="text-navy-500 font-semibold">Physics</strong>,{' '}
+              <strong className="text-navy-500 font-semibold">Mechanical Engineering</strong>,{' '}
+              <strong className="text-navy-500 font-semibold">Computer Science Engineering</strong>, and{' '}
+              <strong className="text-navy-500 font-semibold">Electronics and Communication Engineering (ECE)</strong>{' '}
+              with expert-led online coaching.
             </p>
 
             {/* CTAs */}

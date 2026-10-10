@@ -1,7 +1,10 @@
 User-agent: *
 Allow: /
-Allow: /admin/login
-Disallow: /admin/
-Disallow: /student/
+Disallow: /admin
+Disallow: /student
+Disallow: /login
+Disallow: /signup
+Disallow: /register
+Disallow: /api/
 
-Sitemap: https://www.kinetiqacademy.in/sitemap.xml
+Sitemap: https://gentle-caramel-c38a2b.netlify.app/sitemap.xml

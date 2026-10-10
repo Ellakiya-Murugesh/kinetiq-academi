@@ -5,6 +5,7 @@ import { CourseCard } from '../components/ui/CourseCard';
 import { CountdownTimer } from '../components/ui/CountdownTimer';
 import { Sparkles, Calendar, BookOpen, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { BRAND_SITE_URL } from '../config/brand';
 
 export const CoursesPage: React.FC = () => {
   const mainCourse = courses[0];
@@ -16,10 +17,10 @@ export const CoursesPage: React.FC = () => {
         description="Explore Kinetiq Academi’s 100-day online GATE coaching program in Chemistry and Physics, with live classes, structured study resources, previous-year questions, mock tests and guided revision."
         structuredData={{
           '@type': 'Course',
-          '@id': 'https://www.kinetiqacademy.in/courses#gate-course',
+          '@id': `${BRAND_SITE_URL}/courses#gate-course`,
           name: '100-Day Online Live Coaching Program for GATE Chemistry and Physics',
           description: 'A structured 100-day online live coaching program in Chemistry and Physics with concept classes, study resources, previous-year questions, tests and revision.',
-          provider: { '@id': 'https://www.kinetiqacademy.in/#organization' },
+          provider: { '@id': `${BRAND_SITE_URL}/#organization` },
           hasCourseInstance: {
             '@type': 'CourseInstance',
             courseMode: 'online',

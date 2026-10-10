@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   BRAND_HOME_DESCRIPTION,
@@ -81,6 +81,10 @@ export const SEO: React.FC<SEOProps> = ({
   ogImage = BRAND_OG_IMAGE_PATH,
   structuredData,
 }) => {
+  useEffect(() => {
+    document.head.querySelectorAll('[data-seo-fallback]').forEach((element) => element.remove());
+  }, []);
+
   const fullTitle = title.includes(BRAND_NAME) ? title : `${title} | ${BRAND_NAME}`;
   const effectiveOgTitle = ogTitle || fullTitle;
   const effectiveOgDesc = ogDescription || description;
