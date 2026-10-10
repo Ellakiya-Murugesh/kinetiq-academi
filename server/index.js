@@ -13,10 +13,13 @@ const DATABASE_RETRY_INITIAL_MS = 5_000;
 const DATABASE_RETRY_MAX_MS = 30_000;
 const isProduction = process.env.NODE_ENV === 'production';
 const HOST = process.env.HOST || (isProduction ? '0.0.0.0' : '127.0.0.1');
-const configuredOrigins = (process.env.APP_ORIGIN || '')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const configuredOrigins = [
+  'https://gentle-caramel-c38a2b.netlify.app',
+  ...(process.env.APP_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
 const developmentOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:4173', 'http://127.0.0.1:4173'];
 
 function isAllowedOrigin(origin, request) {

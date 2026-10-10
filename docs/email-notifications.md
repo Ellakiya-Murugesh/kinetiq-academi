@@ -13,11 +13,14 @@ frontend does not start the API.
 - Backend start: `npm ci` followed by `npm run start:api`.
 - Set `PORT` as required by the backend host. The API binds to `0.0.0.0` in
   production.
-- Set `VITE_API_BASE_URL` to the public API origin when the frontend and backend
-  use different domains. It is a build-time frontend setting and must not contain
-  secrets.
-- Set backend `APP_ORIGIN` to the HTTPS frontend origin for CORS and
-  `FRONTEND_URL` to that same HTTPS origin for email links.
+- The production build uses `VITE_API_BASE_URL=https://kinetiqacademi.onrender.com`
+  to send API requests to the backend. This is a public build-time URL, not a
+  secret. Override it in the frontend host's build environment only when using a
+  different backend.
+- Set backend `APP_ORIGIN` to
+  `https://gentle-caramel-c38a2b.netlify.app` for CORS and `FRONTEND_URL` to
+  that same HTTPS origin for email links. The production frontend origin is also
+  explicitly allowed by the backend.
 - `GET /health` checks MongoDB with a live ping and returns HTTP 200 only when
   the database is reachable; it returns HTTP 503 when MongoDB is unavailable.
   The existing `GET /api/health` path remains available as an alias. The API
