@@ -18,9 +18,13 @@ frontend does not start the API.
   secrets.
 - Set backend `APP_ORIGIN` to the HTTPS frontend origin for CORS and
   `FRONTEND_URL` to that same HTTPS origin for email links.
+- `GET /health` checks MongoDB with a live ping and returns HTTP 200 only when
+  the database is reachable; it returns HTTP 503 when MongoDB is unavailable.
+  The existing `GET /api/health` path remains available as an alias. The API
+  does not serve a page at `/`.
 
-No production hosting provider or deployed domain is configured in this
-workspace. Do not use the sample values below as production settings.
+The Render dashboard's production settings are not available in this workspace.
+Do not use the sample values below as production settings.
 
 ## Backend environment variables
 

@@ -61,7 +61,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/student', studentRoutes);
 
-app.get('/api/health', async (req, res) => {
+app.get(['/health', '/api/health'], async (req, res) => {
   try {
     await pingDatabase();
     databaseReady = true;
