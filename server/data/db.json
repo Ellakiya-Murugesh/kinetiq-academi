@@ -4,7 +4,7 @@
       "id": "usr-admin-1",
       "email": "admin@gateprep.com",
       "phone": "9876500001",
-      "passwordHash": "$2b$12$YgwSKT7kml/jH1AMPyP.i.hcRH5Q49poy2GzkoSaewoq/V39P2DfG",
+      "passwordHash": "$2a$10$fVpA35rE1nK0bFj2ZtS0uOH8V8X.j4.9M8wzW8sT3A8s5yP1.1z7a",
       "name": "Academic Director",
       "role": "ADMIN",
       "createdAt": "2026-08-01T10:00:00.000Z",
@@ -14,7 +14,7 @@
       "id": "usr-student-1",
       "email": "student@gateprep.com",
       "phone": "9345663224",
-      "passwordHash": "$2b$12$zg9xP9Z7U/laHXXd6U.tPOgnTC8MEErWX6xZjFx31flj3U0SKyDRu",
+      "passwordHash": "$2a$10$fVpA35rE1nK0bFj2ZtS0uOH8V8X.j4.9M8wzW8sT3A8s5yP1.1z7a",
       "name": "liya",
       "role": "STUDENT",
       "createdAt": "2026-09-01T12:00:00.000Z",
@@ -40,7 +40,9 @@
       "totalClasses": 40,
       "materialsAccessed": 18,
       "testsCompleted": 0,
-      "averageScore": 0
+      "averageScore": 0,
+      "refundEligible": true,
+      "refundStatus": "Rejected"
     }
   ],
   "courses": [],
@@ -106,6 +108,42 @@
   "materials": [],
   "tests": [],
   "results": [],
+  "refunds": [
+    {
+      "id": "ref-601",
+      "studentId": "std-1001",
+      "studentName": "Ananya Sharma",
+      "email": "student@gateprep.com",
+      "phone": "9876543210",
+      "exam": "GATE",
+      "course": "GATE Chemistry — 100 Day Program",
+      "enrollmentId": "enr-001",
+      "courseFee": 10000,
+      "refundAmount": 2000,
+      "examResultProof": "/uploads/ananya_gate_scorecard.pdf",
+      "requestDate": "2026-10-02",
+      "eligibility": "Verified Qualified (Score: 54/100, Cutoff: 28)",
+      "status": "Rejected",
+      "notes": "Scorecard verified on official portal. Awaiting banking confirmation."
+    },
+    {
+      "id": "ref-602",
+      "studentId": "std-1002",
+      "studentName": "Rahul Verma",
+      "email": "rahul.verma@example.com",
+      "phone": "9876543211",
+      "exam": "GATE",
+      "course": "GATE Physics — 100 Day Program",
+      "enrollmentId": "enr-002",
+      "courseFee": 10000,
+      "refundAmount": 2000,
+      "examResultProof": "/uploads/rahul_gate_scorecard.pdf",
+      "requestDate": "2026-09-28",
+      "eligibility": "Verified Qualified (AIR 312)",
+      "status": "Approved",
+      "notes": "Approved by Academic Registrar. Scheduled for disbursement."
+    }
+  ],
   "enquiries": [],
   "announcements": [
     {
