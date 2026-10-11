@@ -3,7 +3,7 @@ export interface LiveSession {
   title: string;
   topic: string;
   subject: 'Chemistry' | 'Physics';
-  exam: 'GATE' | 'UGC NET' | 'CSIR NET' | 'All Competitive Exams';
+  exam: 'GATE';
   faculty: string;
   date: string;
   time: string;
@@ -16,8 +16,8 @@ export interface LiveSession {
 export const upcomingSessions: LiveSession[] = [
   {
     id: 'live-1',
-    title: 'GATE & CSIR NET Quantum Operators & Angular Momentum',
-    topic: 'Operator Algebra, Eigenvalues & Hermiticity in Quantum Chemistry',
+    title: 'GATE Quantum Operators & Angular Momentum',
+    topic: 'Operator algebra, eigenvalues, and hermiticity in quantum chemistry',
     subject: 'Chemistry',
     exam: 'GATE',
     faculty: '[FACULTY NAME]',
@@ -43,9 +43,9 @@ export const upcomingSessions: LiveSession[] = [
   {
     id: 'live-3',
     title: 'Stereochemistry & Pericyclic Reactions Masterclass',
-    topic: 'Woodward-Hoffmann rules, Sigmatropic shifts, and frontier molecular orbitals',
+    topic: 'Woodward-Hoffmann rules, sigmatropic shifts, and frontier molecular orbitals',
     subject: 'Chemistry',
-    exam: 'CSIR NET',
+    exam: 'GATE',
     faculty: '[FACULTY NAME]',
     date: 'Upcoming Wednesday',
     time: '06:00 PM - 08:00 PM IST',
@@ -58,7 +58,7 @@ export const upcomingSessions: LiveSession[] = [
     title: 'Electrodynamics Boundary Value Problems & Waveguides',
     topic: 'TE/TM modes in rectangular waveguides and skin depth derivations',
     subject: 'Physics',
-    exam: 'CSIR NET',
+    exam: 'GATE',
     faculty: '[FACULTY NAME]',
     date: 'Upcoming Thursday',
     time: '07:00 PM - 09:00 PM IST',
@@ -69,9 +69,9 @@ export const upcomingSessions: LiveSession[] = [
   {
     id: 'live-5',
     title: 'Weekly Revision & Comprehensive Unit Test Discussion',
-    topic: 'Live solution breakdown for Saturday Mock Test #4 with doubt clearing',
+    topic: 'Live solution breakdown for Saturday mock test review with doubt clearing',
     subject: 'Chemistry',
-    exam: 'All Competitive Exams',
+    exam: 'GATE',
     faculty: '[FACULTY NAME]',
     date: 'Upcoming Saturday',
     time: '10:00 AM - 01:00 PM IST',
@@ -100,7 +100,7 @@ export const recordedSessions: LiveSession[] = [
     title: 'Thermodynamics & Canonical Ensembles in Statistical Physics',
     topic: 'Microcanonical vs canonical distributions, partition functions, and density of states',
     subject: 'Physics',
-    exam: 'CSIR NET',
+    exam: 'GATE',
     faculty: '[FACULTY NAME]',
     date: 'September 28, 2026',
     time: 'Completed',
@@ -110,10 +110,10 @@ export const recordedSessions: LiveSession[] = [
   },
   {
     id: 'rec-3',
-    title: 'UGC NET Paper 1: Research Ethics, Data Interpretation & Logic',
-    topic: 'Types of research hypotheses, APA formatting, and high-frequency DI sets',
+    title: 'GATE Chemistry PYQ Breakdown: Spectroscopy & Dynamics',
+    topic: 'NMR patterns, energy level transitions, and conceptual problem solving',
     subject: 'Chemistry',
-    exam: 'UGC NET',
+    exam: 'GATE',
     faculty: '[FACULTY NAME]',
     date: 'September 24, 2026',
     time: 'Completed',
@@ -126,7 +126,7 @@ export const recordedSessions: LiveSession[] = [
     title: 'NMR & Mass Spectrometry Structural Elucidation Techniques',
     topic: '1H-NMR splitting, chemical shift predictions, and fragmentation pathways',
     subject: 'Chemistry',
-    exam: 'CSIR NET',
+    exam: 'GATE',
     faculty: '[FACULTY NAME]',
     date: 'September 20, 2026',
     time: 'Completed',

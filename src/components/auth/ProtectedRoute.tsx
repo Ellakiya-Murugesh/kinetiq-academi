@@ -5,7 +5,6 @@ import { ShieldAlert, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BrandLogo } from '../ui/BrandLogo';
 import { BRAND_TAGLINE } from '../../config/brand';
-import { SEO } from '../ui/SEO';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,19 +14,11 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
-  const isAdmin = allowedRoles.includes('ADMIN');
-  const privatePageName = location.pathname
-    .split('/')
-    .filter(Boolean)
-    .slice(1)
-    .map((segment) => segment.replace(/-/g, ' '))
-    .join(' — ');
-  const privateTitle = `${isAdmin ? 'Admin' : 'Student'} Portal${privatePageName ? ` — ${privatePageName}` : ''}`;
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <BrandLogo className="w-[112px] h-auto mb-5" />
+        <BrandLogo className="mb-5 h-20 w-16 object-contain" />
         <div className="w-12 h-12 rounded-full border-4 border-primary-100 border-t-primary-500 animate-spin mb-4" />
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           {BRAND_TAGLINE}
@@ -37,7 +28,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
   }
 
   if (!isAuthenticated || !user) {
-    return <Navigate to={allowedRoles.includes('ADMIN') ? '/admin/login' : '/login'} state={{ from: location }} replace />;
+    const loginPath = allowedRoles.includes('ADMIN') ? '/admin/login' : '/login';
+    return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
   // Role verification check
@@ -74,14 +66,5 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
     );
   }
 
-  return (
-    <>
-      <SEO
-        title={privateTitle}
-        description={`Secure ${isAdmin ? 'administrator' : 'student'} portal for ${isAdmin ? 'managing' : 'accessing'} Kinetiq Academi services.`}
-        noindex
-      />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 };

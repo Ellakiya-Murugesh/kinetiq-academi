@@ -11,28 +11,28 @@ import {
 export const WhyPrepare: React.FC = () => {
   const opportunities = [
     {
-      title: 'Direct PhD Opportunities',
-      desc: 'Explore PhD opportunities after qualifying relevant examinations and meeting institutional eligibility requirements.',
+      title: 'M.Tech & ME Admissions',
+      desc: 'Use your GATE performance as one of the key eligibility criteria for postgraduate admissions in engineering and science programs.',
       icon: GraduationCap,
     },
     {
-      title: 'JRF & Research Opportunities',
-      desc: 'Access research-oriented opportunities and fellowships where applicable across CSIR and UGC sponsored projects.',
+      title: 'Research Pathways',
+      desc: 'Build a foundation for research opportunities, laboratory work, and advanced study across science and engineering domains.',
       icon: FlaskConical,
     },
     {
       title: 'PhD Admissions',
-      desc: 'Explore opportunities across IITs, NITs, IISc, and other universities, subject to their eligibility and admission requirements.',
+      desc: 'Explore postgraduate and doctoral opportunities in IITs, NITs, IISc, and other universities subject to institutional eligibility and selection procedures.',
       icon: Building,
     },
     {
       title: 'Career Opportunities',
-      desc: 'GATE can support different academic, research and career pathways depending on the qualification.',
+      desc: 'A strong GATE profile can support postgraduate study, research roles, and public-sector career pathways depending on your target domain and performance.',
       icon: Briefcase,
     },
     {
       title: 'Expert Guidance',
-      desc: 'Get structured guidance on preparation, applications, interview rounds, and academic pathways.',
+      desc: 'Get structured guidance on preparation strategy, subject prioritization, and academic planning for your GATE journey.',
       icon: Compass,
     },
   ];
@@ -53,7 +53,7 @@ export const WhyPrepare: React.FC = () => {
             </h2>
 
             <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-              Cracking these examinations is not merely an academic milestone. It forms the benchmark eligibility credential for leading scientific research institutions, university professorships, and government research fellowships across India.
+              A strong GATE score can open pathways for postgraduate study, research exposure, and career development across science and engineering fields. Your preparation outcomes depend on your performance, institutional requirements, and the eligibility criteria of each programme or role.
             </p>
 
             {/* Structured Opportunities List */}

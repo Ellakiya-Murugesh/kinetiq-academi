@@ -42,7 +42,7 @@ export const courses: Course[] = [
       { day: 'Saturday', activity: 'Dedicated Test / In-Depth Review' },
       { day: 'Sunday', activity: 'Self Study / Recovery / Doubt Backlog' },
     ],
-    targetExams: ['GATE', 'UGC NET', 'CSIR NET'],
+    targetExams: ['GATE'],
     subjects: ['Chemistry', 'Physics'],
   },
 ];

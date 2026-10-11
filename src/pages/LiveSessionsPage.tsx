@@ -30,7 +30,7 @@ export const LiveSessionsPage: React.FC = () => {
     <>
       <SEO
         title="Live Interactive Classes & Recorded Lecture Archive"
-        description="Attend daily live classes and access high-definition recorded archives for GATE, UGC NET & CSIR NET Chemistry and Physics."
+        description="Attend daily live classes and access high-definition recorded archives for GATE Chemistry and Physics preparation."
       />
 
       {/* Header */}

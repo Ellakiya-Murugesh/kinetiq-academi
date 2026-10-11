@@ -1,275 +1,117 @@
 import express from 'express';
+import bcrypt from 'bcryptjs';
 import { getDb, saveDb } from '../db.js';
 import { requireStudent } from '../middleware/auth.js';
+import { createStudentProfileRouter } from './studentProfile.js';
+import { createStudentDashboardRouter } from './studentDashboard.js';
+import { createStudentMaterialsRouter } from './studentMaterials.js';
 import { sendPdfDocument } from '../utils/pdf.js';
-import { GATE_COURSE_CATALOG_ID, GATE_COURSE_FEE, GATE_COURSE_SUBJECTS, getGateCourse, ensureGateCourse } from '../utils/gateEnrollment.js';
 import { BRAND_NAME } from '../../shared/brand.js';
-import { createEmailNotification } from '../services/emailNotifications.js';
 
 const router = express.Router();
 
+router.use('/profile', createStudentProfileRouter());
 router.use(requireStudent);
+router.use(createStudentDashboardRouter());
+router.use(createStudentMaterialsRouter());
 
-const syllabusModules = [
-  {
-    id: 'mod-1',
-    title: 'Module 1: Mathematical Foundations & Operator Algebra',
-    topics: ['Linear Vector Spaces', 'Hermitian Operators', 'Dirac Notation', 'Eigenvalue Problems'],
-  },
-  {
-    id: 'mod-2',
-    title: 'Module 2: Quantum Chemistry & Postulates',
-    topics: ['Schrödinger Wave Equation', '1D/3D Box Solutions', 'Harmonic Oscillator', 'Hydrogen Atom'],
-  },
-  {
-    id: 'mod-3',
-    title: 'Module 3: Molecular Spectroscopy & Group Theory',
-    topics: ['Rotational Selection Rules', 'Vibrational Raman', 'Point Groups & Character Tables'],
-  },
-  {
-    id: 'mod-4',
-    title: 'Module 4: Chemical Kinetics & Reaction Dynamics',
-    topics: ['Transition State Theory', 'Catalytic Mechanisms', 'Photochemical Kinetics'],
-  },
-  {
-    id: 'mod-5',
-    title: 'Module 5: PYQ Mastery & Speed Problem Sets',
-    topics: ['Last 10 Years Numerical Analysis', 'Virtual Calculator Drills', 'Part C Complex Synthesis'],
-  },
-];
-
-const syllabusTopicIds = new Set(
-  syllabusModules.flatMap((module) => module.topics.map((_, index) => `${module.id}-topic-${index + 1}`))
-);
-
-function getSyllabusProgress(student) {
-  const completed = Array.isArray(student.syllabusProgress)
-    ? new Set(student.syllabusProgress.filter((id) => syllabusTopicIds.has(id)))
-    : new Set();
-  return Math.round((completed.size / syllabusTopicIds.size) * 100);
-}
-
+// Helper to get active student for request
 function getStudentForUser(req) {
   return req.student;
 }
 
-function getOwnedStudentForUser(req) {
-  return req.student;
-}
+/* ==================== 2. PROFILE & PASSWORD ==================== */
+router.put('/change-password', async (req, res) => {
+  const { currentPassword, newPassword, confirmPassword } = req.body;
 
-function isVerifiedPayment(payment) {
-  return payment?.status === 'Payment Verified' || payment?.status === 'Paid';
-}
-
-/* ==================== 1. STUDENT DASHBOARD ==================== */
-router.get('/dashboard', async (req, res) => {
-  const db = await getDb();
-  const student = await getStudentForUser(req, res);
-
-  const course = student.courseId
-    ? db.courses.find((c) => c.id === student.courseId) || null
-    : (student.courseName && student.courseName !== 'Not enrolled'
-      ? db.courses.find((c) => c.name === student.courseName || c.title === student.courseName) || null
-      : null);
-
-  const upcomingClass =
-    db.liveSessions.find(
-      (s) =>
-        s.status === 'Published' &&
-        (s.exam === student.exam || s.exam === 'All Competitive Exams') &&
-        (s.subject === student.subject || s.subject === 'Chemistry')
-    ) || db.liveSessions[0];
-
-  const upcomingTest =
-    db.tests.find(
-      (t) =>
-        t.status === 'Published' &&
-        t.exam === student.exam &&
-        t.subject === student.subject
-    ) || db.tests[0];
-
-  const recentResults = db.results
-    .filter((r) => r.studentId === student.id)
-    .slice(0, 3);
-
-  const relevantAnnouncements = db.announcements.filter(
-    (a) =>
-      a.status === 'Active' &&
-      (a.audience === 'All students' ||
-        a.audience === `${student.exam} students` ||
-        a.audience === student.subject)
-  );
-  const progress = getSyllabusProgress(student);
-
-  res.json({
-    student: { ...student, progress },
-    course: course ? {
-      ...course,
-      studentProgress: progress,
-      classesAttended: student.classesAttended,
-      totalClasses: student.totalClasses,
-      materialsAccessed: student.materialsAccessed,
-      testsCompleted: student.testsCompleted,
-      averageScore: student.averageScore,
-    } : null,
-    upcomingClass,
-    upcomingTest,
-    recentResults,
-    announcements: relevantAnnouncements,
-  });
-});
-
-/* ==================== 2. STUDENT PROFILE ==================== */
-router.get('/profile', async (req, res) => {
-  const student = getStudentForUser(req);
-  res.json({
-    student,
-    user: {
-      id: req.user.id,
-      email: req.user.email,
-      phone: req.user.phone,
-      name: req.user.name,
-      role: req.user.role,
-    },
-  });
-});
-
-router.put('/profile', async (req, res) => {
-  const db = await getDb();
-  const student = getStudentForUser(req);
-  const profileFields = ['name', 'email', 'dateOfBirth', 'gender', 'address', 'qualification', 'college', 'gatePaper', 'gateAttemptYear'];
-  const profile = Object.fromEntries(profileFields.map((field) => [field, String(req.body?.[field] ?? '').trim()]));
-  if (!profile.name || !profile.email) {
-    return res.status(400).json({ message: 'Enter your name and email address.' });
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email)) {
-    return res.status(400).json({ message: 'Enter a valid email address.' });
-  }
-  if (profile.dateOfBirth && (Number.isNaN(Date.parse(profile.dateOfBirth)) || new Date(profile.dateOfBirth) >= new Date())) {
-    return res.status(400).json({ message: 'Enter a valid date of birth in the past.' });
-  }
-  if (profile.gateAttemptYear && (!/^\d{4}$/.test(profile.gateAttemptYear) || Number(profile.gateAttemptYear) < 2000 || Number(profile.gateAttemptYear) > new Date().getFullYear() + 5)) {
-    return res.status(400).json({ message: 'Choose a valid GATE attempt year.' });
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({ message: 'New password must be at least 6 characters.' });
   }
 
-  const studentIndex = db.students.findIndex((record) => record.id === student.id);
-  const userIndex = db.users.findIndex((record) => record.id === req.user.id);
-  if (studentIndex === -1 || userIndex === -1) return res.status(404).json({ message: 'Student profile not found.' });
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: 'New passwords do not match.' });
+  }
 
-  const optionalProfile = [
-    profile.dateOfBirth,
-    profile.gender,
-    profile.address,
-    profile.qualification,
-    profile.college,
-    profile.gatePaper,
-    profile.gateAttemptYear,
-  ];
-  const profileCompleted = optionalProfile.every((value) => value.length > 0);
-  const updatedStudent = {
-    ...db.students[studentIndex],
-    ...profile,
-    phone: req.user.phone,
-    mobile: req.user.phone,
-    mobileVerified: true,
-    exam: 'GATE',
-    subject: profile.gatePaper,
-    profileCompleted,
-    updatedAt: new Date().toISOString(),
-  };
-  db.students[studentIndex] = updatedStudent;
-  db.users[userIndex] = {
-    ...db.users[userIndex],
-    name: profile.name,
-    email: profile.email,
-    mobileVerified: true,
-    profileCompleted,
-  };
-  await saveDb(db);
-  res.json({ message: 'Profile updated successfully.', student: updatedStudent });
+  const db = getDb();
+  const user = db.users.find((u) => u.id === req.user.id);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found.' });
+  }
+
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash).catch(() => false);
+
+  if (!valid) {
+    return res.status(400).json({ message: 'Current password incorrect.' });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  user.passwordHash = await bcrypt.hash(newPassword, salt);
+  saveDb(db);
+
+  res.json({ message: 'Password updated successfully.' });
 });
 
 /* ==================== 3. MY COURSE ==================== */
-router.get('/course', async (req, res) => {
-  const db = await getDb();
-  const student = await getStudentForUser(req, res);
-  const course = student.courseId
-    ? db.courses.find((c) => c.id === student.courseId) || null
-    : (student.courseName && student.courseName !== 'Not enrolled'
-      ? db.courses.find((c) => c.name === student.courseName || c.title === student.courseName) || null
-      : null);
+router.get('/course', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
+  const course = db.courses.find((c) => c.id === student.courseId) || db.courses[0];
 
-  const completedTopicIds = Array.isArray(student.syllabusProgress)
-    ? student.syllabusProgress.filter((id) => syllabusTopicIds.has(id))
-    : [];
-  const completedTopics = new Set(completedTopicIds);
-  const modules = syllabusModules.map((module) => {
-    const topics = module.topics.map((title, index) => ({
-      id: `${module.id}-topic-${index + 1}`,
-      title,
-      isCompleted: completedTopics.has(`${module.id}-topic-${index + 1}`),
-    }));
-    const completedLessons = topics.filter((topic) => topic.isCompleted).length;
-    return {
-      ...module,
-      topics,
-      totalLessons: topics.length,
-      completedLessons,
-      status: completedLessons === topics.length
-        ? 'Completed'
-        : completedLessons > 0
-          ? 'In Progress'
-          : 'Not Started',
-    };
-  });
-  const overallProgress = getSyllabusProgress(student);
+  const modules = [
+    {
+      id: 'mod-1',
+      title: 'Module 1: Mathematical Foundations & Operator Algebra',
+      totalLessons: 12,
+      completedLessons: 12,
+      status: 'Completed',
+      topics: ['Linear Vector Spaces', 'Hermitian Operators', 'Dirac Notation', 'Eigenvalue Problems'],
+    },
+    {
+      id: 'mod-2',
+      title: 'Module 2: Quantum Chemistry & Postulates',
+      totalLessons: 14,
+      completedLessons: 10,
+      status: 'In Progress',
+      topics: ['Schrödinger Wave Equation', '1D/3D Box Solutions', 'Harmonic Oscillator', 'Hydrogen Atom'],
+    },
+    {
+      id: 'mod-3',
+      title: 'Module 3: Molecular Spectroscopy & Group Theory',
+      totalLessons: 16,
+      completedLessons: 4,
+      status: 'In Progress',
+      topics: ['Rotational Selection Rules', 'Vibrational Raman', 'Point Groups & Character Tables'],
+    },
+    {
+      id: 'mod-4',
+      title: 'Module 4: Chemical Kinetics & Reaction Dynamics',
+      totalLessons: 10,
+      completedLessons: 0,
+      status: 'Upcoming',
+      topics: ['Transition State Theory', 'Catalytic Mechanisms', 'Photochemical Kinetics'],
+    },
+    {
+      id: 'mod-5',
+      title: 'Module 5: PYQ Mastery & Speed Problem Sets',
+      totalLessons: 15,
+      completedLessons: 0,
+      status: 'Upcoming',
+      topics: ['Last 10 Years Numerical Analysis', 'Virtual Calculator Drills', 'Part C Complex Synthesis'],
+    },
+  ];
 
   res.json({
     course,
-    student: { ...student, progress: overallProgress },
+    student,
     modules: course ? modules : [],
-    overallProgress,
-  });
-});
-
-router.put('/course/syllabus-progress', async (req, res) => {
-  const student = getStudentForUser(req);
-  const topicId = String(req.body?.topicId ?? '');
-  const { isCompleted } = req.body ?? {};
-  if (!syllabusTopicIds.has(topicId) || typeof isCompleted !== 'boolean') {
-    return res.status(400).json({ message: 'Choose a valid syllabus topic and completion state.' });
-  }
-
-  const db = await getDb();
-  const studentIndex = db.students.findIndex((record) => record.id === student.id);
-  if (studentIndex === -1) return res.status(404).json({ message: 'Student profile not found.' });
-
-  const current = Array.isArray(db.students[studentIndex].syllabusProgress)
-    ? db.students[studentIndex].syllabusProgress.filter((id) => syllabusTopicIds.has(id))
-    : [];
-  const completed = new Set(current);
-  if (isCompleted) completed.add(topicId);
-  else completed.delete(topicId);
-
-  const syllabusProgress = [...completed];
-  db.students[studentIndex] = {
-    ...db.students[studentIndex],
-    syllabusProgress,
-    progress: getSyllabusProgress({ syllabusProgress }),
-    updatedAt: new Date().toISOString(),
-  };
-  await saveDb(db);
-
-  res.json({
-    completedTopicIds: syllabusProgress,
-    overallProgress: db.students[studentIndex].progress,
+    overallProgress: student.progress,
   });
 });
 
 /* ==================== 4. LIVE SESSIONS ==================== */
-router.get('/live-sessions', async (req, res) => {
-  const db = await getDb();
-  const student = await getStudentForUser(req, res);
+router.get('/live-sessions', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
 
   const upcoming = db.liveSessions.filter(
     (s) => s.status === 'Published'
@@ -308,25 +150,10 @@ router.get('/live-sessions', async (req, res) => {
   res.json({ upcoming, recordings });
 });
 
-/* ==================== 5. MATERIALS ==================== */
-router.get('/materials', async (req, res) => {
-  const db = await getDb();
-  const student = await getStudentForUser(req, res);
-
-  // Return all published materials (unlocked because student is authorized)
-  const studentMaterials = db.materials.map((m) => ({
-    ...m,
-    isLocked: false,
-    downloadUrl: `/api/student/materials/${m.id}/download`,
-  }));
-
-  res.json(studentMaterials);
-});
-
 /* ==================== 6. TESTS & SUBMISSION ==================== */
-router.get('/tests', async (req, res) => {
-  const db = await getDb();
-  const student = await getStudentForUser(req, res);
+router.get('/tests', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
 
   const studentResults = db.results.filter((r) => r.studentId === student.id);
   const attemptedIds = studentResults.map((r) => r.testId);
@@ -352,8 +179,8 @@ router.get('/tests', async (req, res) => {
   });
 });
 
-router.get('/tests/:id', async (req, res) => {
-  const db = await getDb();
+router.get('/tests/:id', (req, res) => {
+  const db = getDb();
   const test = db.tests.find((t) => t.id === req.params.id);
   if (!test || test.status !== 'Published' || !Array.isArray(test.questions) || test.questions.length === 0) {
     return res.status(404).json({ message: 'Published test with questions not found.' });
@@ -381,9 +208,9 @@ router.get('/tests/:id', async (req, res) => {
   });
 });
 
-router.post('/tests/:id/submit', async (req, res) => {
-  const db = await getDb();
-  const student = await getStudentForUser(req, res);
+router.post('/tests/:id/submit', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
   const test = db.tests.find((t) => t.id === req.params.id);
 
   if (!test) return res.status(404).json({ message: 'Test not found.' });
@@ -434,9 +261,10 @@ router.post('/tests/:id/submit', async (req, res) => {
   const stdIdx = db.students.findIndex((s) => s.id === student.id);
   if (stdIdx !== -1) {
     db.students[stdIdx].testsCompleted += 1;
+    db.students[stdIdx].progress = Math.min(100, db.students[stdIdx].progress + 5);
   }
 
-  await saveDb(db);
+  saveDb(db);
   res.status(201).json({
     ...newResult,
     answerKey: test.questions.map((question) => ({
@@ -448,9 +276,9 @@ router.post('/tests/:id/submit', async (req, res) => {
 });
 
 /* ==================== 7. RESULTS & ANALYTICS ==================== */
-router.get('/results', async (req, res) => {
-  const db = await getDb();
-  const student = await getStudentForUser(req, res);
+router.get('/results', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
 
   const results = db.results.filter((r) => r.studentId === student.id);
 
@@ -475,270 +303,137 @@ router.get('/results', async (req, res) => {
 });
 
 /* ==================== 8. PAYMENTS ==================== */
-router.get('/payments', async (req, res) => {
-  const db = await getDb();
-  const student = await getOwnedStudentForUser(req, res);
-  if (!student) return;
+router.get('/payments', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
 
   const payments = db.payments.filter((p) => p.studentId === student.id);
   const course = db.courses.find((item) => item.id === student.courseId);
-  const courseFee = course?.fee || GATE_COURSE_FEE;
+  const courseFee = course?.fee || 10000;
   const amountPaid = payments
-    .filter((payment) => isVerifiedPayment(payment))
+    .filter((payment) => payment.status === 'Paid')
     .reduce((total, payment) => total + payment.amount, 0);
 
   res.json({
     payments: payments.map((payment) => ({
       ...payment,
       studentName: student.name,
-      receiptNumber: isVerifiedPayment(payment)
+      receiptNumber: payment.status === 'Paid'
         ? payment.receiptNumber || `REC-${payment.id.toUpperCase()}`
         : null,
     })),
     courseFee,
     amountPaid,
-    status: amountPaid >= courseFee ? 'Paid' : payments.some((payment) => ['Pending', 'Payment Pending', 'Payment Verification Pending'].includes(payment.status)) ? 'Pending' : 'Unpaid',
+    status: amountPaid >= courseFee ? 'Paid' : payments.some((payment) => payment.status === 'Pending') ? 'Pending' : 'Unpaid',
     invoiceNumber: `INV-2026-${student.id.toUpperCase()}`,
   });
 });
 
-router.get('/enrollment/options', async (req, res) => {
-  const student = await getOwnedStudentForUser(req, res);
-  if (!student) return;
-
-  res.json({
-    courseId: GATE_COURSE_CATALOG_ID,
-    title: '100-Day Online Live Coaching Program',
-    exam: 'GATE',
-    fee: GATE_COURSE_FEE,
-    duration: '100 Days Intensive',
-    subjects: GATE_COURSE_SUBJECTS,
-    courses: GATE_COURSE_SUBJECTS.map((subject) => getGateCourse(subject)),
-    student: { name: student.name, id: student.id },
-  });
-});
-
-router.post('/enrollments', async (req, res) => {
-  const student = await getOwnedStudentForUser(req, res);
-  if (!student) return;
-
-  const course = getGateCourse(req.body?.courseCode ?? req.body?.subject);
-  if (req.body?.courseId !== GATE_COURSE_CATALOG_ID || !course) {
-    return res.status(400).json({ message: 'Choose an available GATE course and subject.' });
-  }
-
-  const db = await getDb();
-  const activeEnrollment = db.enrollments.find(
-    (record) => record.studentId === student.id && record.courseStatus === 'Active'
-  );
-  if (activeEnrollment) {
-    const activePayment = db.payments.find((record) => record.enrollmentId === activeEnrollment.id);
-    if (activePayment) return res.json({ payment: activePayment, enrollment: activeEnrollment });
-    return res.status(409).json({ message: 'You are already enrolled in a course.' });
-  }
-
-  const existingEnrollment = db.enrollments.find(
-    (record) => record.studentId === student.id && record.enrollmentFlow === 'upi-gate'
-  );
-  if (existingEnrollment) {
-    const existingPayment = db.payments.find((record) => record.id === existingEnrollment.paymentId);
-    if (existingPayment && existingEnrollment.subject === course.subject) {
-      return res.json({ payment: existingPayment, enrollment: existingEnrollment });
-    }
-    if (existingPayment) {
-      return res.status(409).json({
-        message: 'An enrollment for another GATE subject is already in progress. Continue that payment or contact the academy before changing subjects.',
-      });
-    }
-    return res.status(409).json({ message: 'An enrollment is already being processed. Contact the academy for assistance.' });
-  }
-
-  const now = new Date();
-  const courseRecord = ensureGateCourse(db, course);
-  const enrollmentId = `enr-${student.id}-${course.id}`;
-  const paymentId = `pay-${student.id}-${course.id}`;
-  const enrollment = {
-    id: enrollmentId,
-    studentId: student.id,
-    studentName: student.name,
-    courseId: courseRecord.id,
-    courseCode: course.code,
-    requestedCourseId: GATE_COURSE_CATALOG_ID,
-    courseName: course.courseName,
-    exam: 'GATE',
-    subject: course.subject,
-    amount: GATE_COURSE_FEE,
-    enrollmentDate: null,
-    createdAt: now.toISOString(),
-    paymentId,
-    paymentStatus: 'Payment Pending',
-    courseStatus: 'Pending Payment',
-    enrollmentFlow: 'upi-gate',
-  };
-  const payment = {
-    id: paymentId,
-    transactionId: paymentId,
-    studentId: student.id,
-    studentName: student.name,
-    registrationId: student.id,
-    enrollmentId,
-    courseId: courseRecord.id,
-    courseCode: course.code,
-    courseName: course.courseName,
-    exam: 'GATE',
-    subject: course.subject,
-    amount: GATE_COURSE_FEE,
-    paymentMethod: 'UPI',
-    upi: 'Kinetiq Academi QR',
-    date: now.toISOString(),
-    createdAt: now.toISOString(),
-    paymentDate: null,
-    status: 'Payment Pending',
-    enrollmentFlow: 'upi-gate',
-  };
-
-  db.enrollments.push(enrollment);
-  db.payments.push(payment);
-  const enrollmentNotification = createEmailNotification({
-    type: 'course_enrollment',
-    idempotencyKey: `course-enrollment:${enrollment.id}`,
-    student,
-    enrollment,
-    payment,
-    status: 'Pending Payment',
-  });
-  await saveDb(db, { notifications: enrollmentNotification ? [enrollmentNotification] : [] });
-  res.status(201).json({ payment, enrollment });
-});
-
-router.get('/payments/:id', async (req, res) => {
-  const student = await getOwnedStudentForUser(req, res);
-  if (!student) return;
-  const db = await getDb();
-  const payment = db.payments.find(
-    (record) => record.id === req.params.id && record.studentId === student.id
-  );
-  if (!payment) return res.status(404).json({ message: 'Payment not found.' });
-
-  const enrollment = db.enrollments.find(
-    (record) => record.id === payment.enrollmentId && record.studentId === student.id
-  );
-  res.json({
-    payment,
-    enrollment: enrollment || null,
-    student: { name: student.name, registrationId: student.id },
-  });
-});
-
-router.post('/payments/:id/confirm', async (req, res) => {
-  const student = await getOwnedStudentForUser(req, res);
-  if (!student) return;
-  const db = await getDb();
-  const payment = db.payments.find(
-    (record) => record.id === req.params.id && record.studentId === student.id
-  );
-  if (!payment) return res.status(404).json({ message: 'Payment not found.' });
-  if (payment.enrollmentFlow !== 'upi-gate') {
-    return res.status(409).json({ message: 'This payment cannot be submitted for UPI verification.' });
-  }
-
-  if (payment.status === 'Payment Verification Pending' || isVerifiedPayment(payment)) {
-    return res.json({ payment });
-  }
-  if (!['Pending', 'Payment Pending', 'Payment Failed'].includes(payment.status)) {
-    return res.status(409).json({ message: 'This payment is not available for verification.' });
-  }
-
-  const confirmationTime = new Date().toISOString();
-  payment.status = 'Payment Verification Pending';
-  payment.studentConfirmedAt = confirmationTime;
-  payment.paymentDate = confirmationTime;
-  payment.date = confirmationTime;
-  const enrollment = db.enrollments.find((record) => record.id === payment.enrollmentId);
-  if (enrollment) {
-    enrollment.paymentStatus = 'Payment Verification Pending';
-    enrollment.courseStatus = 'Pending Payment Verification';
-  }
-  const submissionNotification = createEmailNotification({
-    type: 'payment_submitted',
-    idempotencyKey: `payment-submitted:${payment.id}:${confirmationTime}`,
-    student,
-    enrollment,
-    payment,
-    status: 'Verification Pending',
-  });
-  await saveDb(db, { notifications: submissionNotification ? [submissionNotification] : [] });
-  res.json({ payment });
-});
-
-router.get('/payments/:id/receipt.pdf', async (req, res) => {
-  const db = await getDb();
-  const student = await getOwnedStudentForUser(req, res);
-  if (!student) return;
+router.get('/payments/:id/receipt.pdf', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
   const payment = db.payments.find(
     (record) => record.id === req.params.id && record.studentId === student?.id
   );
 
   if (!payment) return res.status(404).json({ message: 'Payment not found.' });
-  if (!isVerifiedPayment(payment)) {
+  if (payment.status !== 'Paid') {
     return res.status(409).json({ message: 'A receipt is available only after payment is confirmed.' });
   }
 
   const receiptNumber = payment.receiptNumber || `REC-${payment.id.toUpperCase()}`;
-  const enrollment = db.enrollments.find((record) => record.id === payment.enrollmentId);
   sendPdfDocument(res, {
     filename: `${receiptNumber}.pdf`,
-    title: `${BRAND_NAME} | GATE Course Enrollment Receipt`,
-    subtitle: `Enrollment Receipt ${receiptNumber}`,
+    title: `${BRAND_NAME} Payment Receipt`,
+    subtitle: `Receipt ${receiptNumber}`,
     sections: [{
-      title: 'Enrollment & Payment Details',
+      title: 'Payment Details',
       items: [
+        { text: `Transaction ID: ${payment.transactionId}` },
         { text: `Student: ${student.name}` },
-        { text: `Registration/Application ID: ${student.id}` },
         { text: `Course: ${payment.courseName}` },
-        ...(payment.courseCode ? [{ text: `Course Code: ${payment.courseCode}` }] : []),
         { text: `Amount Paid: INR ${Number(payment.amount).toLocaleString('en-IN')}` },
-        { text: `UPI: ${payment.upi || 'UPI QR'}` },
-        { text: `Enrollment Date: ${enrollment?.enrollmentDate || student.enrollmentDate || '-'}` },
-        { text: 'Payment Status: Payment Verified' },
-        { text: 'Enrollment Status: Enrollment Confirmed' },
-        { text: `Verification Date: ${payment.verifiedAt || payment.receiptIssuedAt || '-'}` },
-        { text: `Payment Record ID: ${payment.id}` },
-        { text: 'This is a computer-generated Kinetiq Academi enrollment receipt.' },
+        { text: `Payment Method: ${payment.paymentMethod}` },
+        { text: `Payment Date: ${payment.date}` },
+        { text: 'Status: Paid' },
+        { text: 'This is a computer-generated payment receipt.' },
       ],
     }],
   });
 });
 
-/* ==================== 9. ANNOUNCEMENTS ==================== */
-router.get('/announcements', async (req, res) => {
-  const db = await getDb();
-  const student = await getStudentForUser(req, res);
+/* ==================== 9. REFUND REQUEST ==================== */
+router.get('/refund', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
 
-  const list = db.announcements.filter(
-    (a) =>
-      a.status === 'Active' &&
-      (a.audience === 'All students' ||
-        a.audience === `${student.exam} students` ||
-        a.audience === student.subject)
+  const existingRequest = db.refunds.find((r) => r.studentId === student.id);
+
+  res.json({
+    student,
+    refundAmount: 2000,
+    courseFee: 10000,
+    refundStatus: existingRequest ? existingRequest.status : student.refundStatus,
+    existingRequest,
+    isEligible: student.refundEligible,
+  });
+});
+
+router.post('/refund', (req, res) => {
+  const db = getDb();
+  const student = getStudentForUser(req, res);
+
+  if (!student) {
+    return res.status(404).json({ message: 'Student profile not found.' });
+  }
+
+  if (!student.refundEligible) {
+    return res.status(403).json({ message: 'This account is not currently eligible for a refund.' });
+  }
+
+  const activeRequest = db.refunds.find(
+    (refund) => refund.studentId === student.id &&
+      ['Pending', 'Under Review', 'Approved', 'Paid'].includes(refund.status)
   );
+  if (activeRequest) {
+    return res.status(409).json({ message: 'A refund request is already being reviewed.' });
+  }
 
-  res.json(list.map((announcement) => ({
-    ...announcement,
-    priority: typeof announcement.priority === 'string' && announcement.priority.trim()
-      ? announcement.priority.trim().toLowerCase() === 'normal'
-        ? 'Medium'
-        : ['Urgent', 'High', 'Medium', 'Low'].find(
-          (priority) => priority.toLowerCase() === announcement.priority.trim().toLowerCase()
-        ) || 'Medium'
-      : 'Medium',
-    category: typeof announcement.category === 'string' && announcement.category.trim()
-      ? announcement.category.trim()
-      : 'General',
-    keywords: Array.isArray(announcement.keywords) ? announcement.keywords : [],
-    content: announcement.content || announcement.description || announcement.message || '',
-    publishDate: announcement.publishDate || announcement.date || '',
-  })));
+  const accountDetails = String(req.body.accountDetails || '').trim();
+  if (!accountDetails) {
+    return res.status(400).json({ message: 'Please provide a UPI ID or bank account for disbursement.' });
+  }
+
+  const { examResultProof, notes } = req.body;
+
+  const newRefund = {
+    id: `ref-${Date.now()}`,
+    studentId: student.id,
+    studentName: student.name,
+    email: student.email,
+    phone: student.phone,
+    exam: student.exam,
+    course: student.courseName,
+    enrollmentId: `enr-${student.id}`,
+    courseFee: 10000,
+    refundAmount: 2000,
+    examResultProof: examResultProof || 'Proof document not attached',
+    accountDetails,
+    requestDate: new Date().toISOString().split('T')[0],
+    eligibility: 'Pending Verification by Academic Registrar',
+    status: 'Under Review',
+    notes: notes || 'Student submitted exam qualification scorecard.',
+  };
+
+  db.refunds.unshift(newRefund);
+
+  const stdIdx = db.students.findIndex((s) => s.id === student.id);
+  if (stdIdx !== -1) {
+    db.students[stdIdx].refundStatus = 'Under Review';
+  }
+
+  saveDb(db);
+  res.status(201).json(newRefund);
 });
 
 export default router;

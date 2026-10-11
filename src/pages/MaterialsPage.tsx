@@ -15,7 +15,7 @@ import {
 import { Link } from 'react-router-dom';
 
 export const MaterialsPage: React.FC = () => {
-  const [selectedExam, setSelectedExam] = useState<'All' | 'GATE' | 'UGC NET' | 'CSIR NET'>('All');
+  const [selectedExam, setSelectedExam] = useState<'All' | 'GATE'>('All');
   const [selectedSubject, setSelectedSubject] = useState<'All' | 'Chemistry' | 'Physics'>('All');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,8 +43,8 @@ export const MaterialsPage: React.FC = () => {
   return (
     <>
       <SEO
-        title="Study Materials, PYQs & Mock Tests — Chemistry & Physics"
-        description="Access structured study notes, previous year question banks, mock test papers and rapid revision sheets for GATE, UGC NET & CSIR NET."
+        title="Study Materials, PYQs & Mock Tests — GATE Chemistry & Physics"
+        description="Access structured study notes, previous year question banks, mock test papers, and rapid revision sheets for GATE Chemistry and Physics preparation."
       />
 
       {/* Header */}
@@ -95,7 +95,7 @@ export const MaterialsPage: React.FC = () => {
 
             {/* Exam Selectors */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-              {(['All', 'GATE', 'UGC NET', 'CSIR NET'] as const).map((exam) => (
+              {(['All', 'GATE'] as const).map((exam) => (
                 <button
                   key={exam}
                   type="button"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest } from '../../utils/api';
+import { GATE_MATERIAL_SUBJECTS } from '../../data/gateMaterialSubjects';
 import { Bell, Plus, Trash2, Calendar, Users, X } from 'lucide-react';
 
 export const AdminAnnouncementsPage: React.FC = () => {
@@ -170,10 +171,9 @@ export const AdminAnnouncementsPage: React.FC = () => {
                 >
                   <option value="All students">All Enrolled Students</option>
                   <option value="GATE students">GATE Aspirants Only</option>
-                  <option value="CSIR NET students">CSIR NET Aspirants Only</option>
-                  <option value="UGC NET students">UGC NET Aspirants Only</option>
-                  <option value="Chemistry">Chemistry Students Only</option>
-                  <option value="Physics">Physics Students Only</option>
+                  {GATE_MATERIAL_SUBJECTS.map((subject) => (
+                    <option key={subject.value} value={subject.value}>{subject.label} Students Only</option>
+                  ))}
                 </select>
               </div>
 

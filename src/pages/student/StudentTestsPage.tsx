@@ -559,7 +559,7 @@ export const StudentTestsPage: React.FC = () => {
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-[#00245C]">Mock Tests & Practice Exams</h1>
         <p className="text-sm text-gray-600 mt-1">
-          Simulate actual exam conditions for GATE, CSIR NET, and UGC NET with negative marking and instant concept solutions.
+          Simulate actual GATE exam conditions with negative marking and instant concept solutions.
         </p>
       </div>
 

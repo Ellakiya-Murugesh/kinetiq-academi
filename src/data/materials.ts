@@ -1,6 +1,6 @@
 export interface MaterialItem {
   id: string;
-  exam: 'GATE' | 'UGC NET' | 'CSIR NET';
+  exam: 'GATE';
   subject: 'Chemistry' | 'Physics';
   category: 'Study Notes' | 'Previous Year Papers' | 'Practice Sets' | 'Mock Tests' | 'Revision Sheets';
   title: string;
@@ -13,7 +13,6 @@ export interface MaterialItem {
 }
 
 export const materials: MaterialItem[] = [
-  // GATE - Chemistry
   {
     id: 'mat-gate-ch-1',
     exam: 'GATE',
@@ -75,8 +74,6 @@ export const materials: MaterialItem[] = [
     format: 'PDF',
     isLocked: true,
   },
-
-  // GATE - Physics
   {
     id: 'mat-gate-ph-1',
     exam: 'GATE',
@@ -135,174 +132,6 @@ export const materials: MaterialItem[] = [
     description: 'Concept-reinforcing problems on crystal lattices, band theory, radioactive decay models, and detectors.',
     fileSize: '4.4 MB',
     pages: 48,
-    format: 'PDF',
-    isLocked: true,
-  },
-
-  // UGC NET - Chemistry
-  {
-    id: 'mat-ugc-ch-1',
-    exam: 'UGC NET',
-    subject: 'Chemistry',
-    category: 'Study Notes',
-    title: 'Inorganic Chemistry & Coordination Compounds Master Module',
-    description: 'Crystal field theory, term symbols, organometallic catalysts, and bio-inorganic reaction paths.',
-    fileSize: '7.5 MB',
-    pages: 82,
-    format: 'PDF',
-    isLocked: true,
-  },
-  {
-    id: 'mat-ugc-ch-2',
-    exam: 'UGC NET',
-    subject: 'Chemistry',
-    category: 'Revision Sheets',
-    title: 'Paper 1: Research & Teaching Aptitude Essential Formulas',
-    description: 'Quick memory points, research methodology types, statistical tests, and teaching pedagogy fundamentals.',
-    fileSize: '2.5 MB',
-    pages: 22,
-    format: 'PDF',
-    isLocked: false,
-    downloadUrl: '#preview',
-  },
-  {
-    id: 'mat-ugc-ch-3',
-    exam: 'UGC NET',
-    subject: 'Chemistry',
-    category: 'Previous Year Papers',
-    title: 'UGC NET Chemistry Paper 1 & Paper 2 Solved Papers',
-    description: 'Official test papers from past exam cycles accompanied by verified answer keys and methodology breakdowns.',
-    fileSize: '15.6 MB',
-    pages: 195,
-    format: 'PDF',
-    isLocked: true,
-  },
-  {
-    id: 'mat-ugc-ch-4',
-    exam: 'UGC NET',
-    subject: 'Chemistry',
-    category: 'Mock Tests',
-    title: 'UGC NET Full-Length Simulation Exam (Paper I + Paper II)',
-    description: 'Simulated 150-question mock examination designed for time management and speed.',
-    fileSize: '4.1 MB',
-    pages: 50,
-    format: 'Online Test',
-    isLocked: true,
-  },
-
-  // UGC NET - Physics
-  {
-    id: 'mat-ugc-ph-1',
-    exam: 'UGC NET',
-    subject: 'Physics',
-    category: 'Study Notes',
-    title: 'Thermodynamics & Statistical Physics Theory & Practice',
-    description: 'Ensemble theory, partition functions, phase transitions, and Bose-Einstein / Fermi-Dirac distribution laws.',
-    fileSize: '5.9 MB',
-    pages: 68,
-    format: 'PDF',
-    isLocked: true,
-  },
-  {
-    id: 'mat-ugc-ph-2',
-    exam: 'UGC NET',
-    subject: 'Physics',
-    category: 'Revision Sheets',
-    title: 'Mathematical Physics Complex Analysis & Differential Equations',
-    description: 'Formula summary sheet of contour integration, residue calculus, Fourier & Laplace transforms.',
-    fileSize: '1.8 MB',
-    pages: 16,
-    format: 'PDF',
-    isLocked: false,
-    downloadUrl: '#preview',
-  },
-  {
-    id: 'mat-ugc-ph-3',
-    exam: 'UGC NET',
-    subject: 'Physics',
-    category: 'Previous Year Papers',
-    title: 'UGC NET Physics Question Bank with Explanations',
-    description: 'Past exam papers with comprehensive solutions for Paper 1 and Physical Sciences papers.',
-    fileSize: '13.1 MB',
-    pages: 172,
-    format: 'PDF',
-    isLocked: true,
-  },
-
-  // CSIR NET - Chemistry
-  {
-    id: 'mat-csir-ch-1',
-    exam: 'CSIR NET',
-    subject: 'Chemistry',
-    category: 'Study Notes',
-    title: 'CSIR Part C Specialized Guide: Chemical Sciences Multi-Concept Problems',
-    description: 'High-level synthesis problems combining NMR spectroscopy, stereochemical control, and molecular orbital theory.',
-    fileSize: '8.4 MB',
-    pages: 94,
-    format: 'PDF',
-    isLocked: true,
-  },
-  {
-    id: 'mat-csir-ch-2',
-    exam: 'CSIR NET',
-    subject: 'Chemistry',
-    category: 'Revision Sheets',
-    title: 'CSIR NET Part A General Aptitude High-Scoring Short Tricks',
-    description: 'Geometry, number series, graphical analysis, and logical puzzles with rapid solving techniques.',
-    fileSize: '2.2 MB',
-    pages: 20,
-    format: 'PDF',
-    isLocked: false,
-    downloadUrl: '#preview',
-  },
-  {
-    id: 'mat-csir-ch-3',
-    exam: 'CSIR NET',
-    subject: 'Chemistry',
-    category: 'Mock Tests',
-    title: 'CSIR JRF Chemical Sciences Mock Test with Negative Marking Matrix',
-    description: 'Part A, B, and C standard 200-mark full test with automated scoring breakdown.',
-    fileSize: '3.8 MB',
-    pages: 42,
-    format: 'Online Test',
-    isLocked: true,
-  },
-
-  // CSIR NET - Physics
-  {
-    id: 'mat-csir-ph-1',
-    exam: 'CSIR NET',
-    subject: 'Physics',
-    category: 'Study Notes',
-    title: 'Advanced Quantum Mechanics & Perturbation Techniques for Part C',
-    description: 'Variational methods, WKB approximation, time-dependent perturbation theory, and scattering matrix analysis.',
-    fileSize: '7.9 MB',
-    pages: 86,
-    format: 'PDF',
-    isLocked: true,
-  },
-  {
-    id: 'mat-csir-ph-2',
-    exam: 'CSIR NET',
-    subject: 'Physics',
-    category: 'Revision Sheets',
-    title: 'Condensed Matter Physics & Semiconductor Formula Compendium',
-    description: 'Lattice dynamics, superconductivity, Hall effect, and bandgap physics summary table.',
-    fileSize: '2.4 MB',
-    pages: 19,
-    format: 'PDF',
-    isLocked: false,
-    downloadUrl: '#preview',
-  },
-  {
-    id: 'mat-csir-ph-3',
-    exam: 'CSIR NET',
-    subject: 'Physics',
-    category: 'Practice Sets',
-    title: 'CSIR NET Physical Sciences 400 Solved High-Difficulty Problems',
-    description: 'Curated selection of complex 4-mark questions representative of the hardest exam segments.',
-    fileSize: '6.7 MB',
-    pages: 78,
     format: 'PDF',
     isLocked: true,
   },

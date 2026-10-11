@@ -4,7 +4,7 @@ export { BRAND_NAME };
 
 export const BRAND_SITE_URL = 'https://gentle-caramel-c38a2b.netlify.app';
 export const BRAND_TAGLINE = 'Learn. Practice. Advance.';
-export const BRAND_LOGO_PATH = '/images/kinetiq-academi-logo.png';
+export const BRAND_LOGO_PATH = '/images/kinetiq-academy-logo.png';
 export const BRAND_OG_IMAGE_PATH = BRAND_LOGO_PATH;
 export const BRAND_LOGO_ALT = BRAND_NAME;
 export const BRAND_MARK_PATH = '/images/kinetiq-mark.svg';

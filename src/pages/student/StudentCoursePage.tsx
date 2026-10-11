@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest } from '../../utils/api';
-import { Link } from 'react-router-dom';
-import { BookOpen, CheckCircle2, Check, ChevronDown, Circle } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock, Check, PlayCircle, FileText, ChevronDown } from 'lucide-react';
 
 export const StudentCoursePage: React.FC = () => {
   const [courseData, setCourseData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [expandedModule, setExpandedModule] = useState<string>('mod-1');
-  const [savingTopic, setSavingTopic] = useState<string | null>(null);
-  const [progressError, setProgressError] = useState('');
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -26,54 +23,13 @@ export const StudentCoursePage: React.FC = () => {
     fetchCourse();
   }, []);
 
-  const toggleTopic = async (topic: { id: string; isCompleted: boolean }) => {
-    setSavingTopic(topic.id);
-    setProgressError('');
-    try {
-      const result = await apiRequest<{ completedTopicIds: string[]; overallProgress: number }>(
-        '/api/student/course/syllabus-progress',
-        {
-          method: 'PUT',
-          body: JSON.stringify({ topicId: topic.id, isCompleted: !topic.isCompleted }),
-        }
-      );
-      const completedTopicIds = new Set(result.completedTopicIds);
-      setCourseData((current: any) => ({
-        ...current,
-        overallProgress: result.overallProgress,
-        student: { ...current.student, progress: result.overallProgress },
-        modules: current.modules.map((module: any) => {
-          const topics = module.topics.map((item: any) => ({
-            ...item,
-            isCompleted: completedTopicIds.has(item.id),
-          }));
-          const completedLessons = topics.filter((item: any) => item.isCompleted).length;
-          return {
-            ...module,
-            topics,
-            completedLessons,
-            status: completedLessons === topics.length
-              ? 'Completed'
-              : completedLessons > 0
-                ? 'In Progress'
-                : 'Not Started',
-          };
-        }),
-      }));
-    } catch (err) {
-      setProgressError(err instanceof Error ? err.message : 'Could not update syllabus progress.');
-    } finally {
-      setSavingTopic(null);
-    }
-  };
-
   if (loading) {
     return <div className="py-12 text-center text-xs text-gray-400">Loading course curriculum...</div>;
   }
 
   const course = courseData?.course;
   const modules = courseData?.modules || [];
-  const overallProgress = courseData?.overallProgress ?? 0;
+  const overallProgress = courseData?.overallProgress || 64;
 
   if (!course) {
     return (
@@ -81,7 +37,6 @@ export const StudentCoursePage: React.FC = () => {
         <BookOpen className="w-8 h-8 text-primary-500 mx-auto mb-3" />
         <h1 className="text-xl font-bold text-navy-500">No course assigned yet</h1>
         <p className="text-sm text-gray-500 mt-2">Your course curriculum will appear here after enrollment.</p>
-        <Link to="/student/enroll" className="btn-primary mt-5 inline-flex items-center justify-center text-sm">Choose a GATE course</Link>
       </div>
     );
   }
@@ -117,9 +72,6 @@ export const StudentCoursePage: React.FC = () => {
               <span className="text-navy-500">Curriculum Progress</span>
               <span className="text-primary-600">{overallProgress}%</span>
             </div>
-            {overallProgress === 0 && (
-              <p className="text-[11px] text-gray-500 pt-1">No syllabus progress recorded yet.</p>
-            )}
             <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
               <div
                 className="bg-primary-500 h-full rounded-full transition-all duration-500"
@@ -140,11 +92,6 @@ export const StudentCoursePage: React.FC = () => {
         <h3 className="font-bold text-base text-navy-500">
           Syllabus Modules (5 Core Sections)
         </h3>
-        {progressError && (
-          <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800" role="alert">
-            {progressError}
-          </p>
-        )}
 
         {modules.map((mod: any) => {
           const isExpanded = expandedModule === mod.id;
@@ -204,25 +151,14 @@ export const StudentCoursePage: React.FC = () => {
                     Subtopics &amp; Classroom Lectures
                   </h5>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    {mod.topics.map((topic: { id: string; title: string; isCompleted: boolean }) => (
-                      <button
-                        key={topic.id}
-                        type="button"
-                        onClick={() => void toggleTopic(topic)}
-                        disabled={savingTopic !== null}
-                        aria-pressed={topic.isCompleted}
-                        className={`p-2.5 bg-white rounded-xl border flex items-center gap-2 text-left font-medium transition-colors disabled:cursor-wait disabled:opacity-60 ${
-                          topic.isCompleted
-                            ? 'border-emerald-200 text-emerald-800'
-                            : 'border-gray-200 text-navy-500 hover:border-primary-300'
-                        }`}
+                    {mod.topics.map((t: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 bg-white rounded-xl border border-gray-200 flex items-center gap-2 text-navy-500 font-medium"
                       >
-                        {topic.isCompleted
-                          ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                          : <Circle className="w-4 h-4 text-gray-400 shrink-0" />}
-                        <span className="flex-1">{topic.title}</span>
-                        <span className="sr-only">{topic.isCompleted ? 'Completed' : 'Mark complete'}</span>
-                      </button>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>{t}</span>
+                      </div>
                     ))}
                   </div>
                 </div>

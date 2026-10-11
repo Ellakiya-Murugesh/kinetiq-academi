@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Database, Save, CheckCircle2, Download } from 'lucide-react';
+import { Settings, ShieldCheck, Database, Save, CheckCircle2, Download } from 'lucide-react';
 import { BRAND_NAME } from '../../config/brand';
 import { downloadApiFile } from '../../utils/api';
 
@@ -11,6 +11,9 @@ export const AdminSettingsPage: React.FC = () => {
     brandName: BRAND_NAME,
     supportEmail: '[EMAIL ADDRESS]',
     supportPhone: '[PHONE NUMBER]',
+    refundAmount: 2000,
+    claimWindowDays: 30,
+    minAttendancePercent: 75,
     enableSelfRegistration: true,
   });
 
@@ -39,7 +42,7 @@ export const AdminSettingsPage: React.FC = () => {
           System Administration Settings
         </h1>
         <p className="text-xs sm:text-sm text-gray-500 mt-1">
-          Configure platform parameters, contact endpoints, and backup data.
+          Configure platform parameters, refund policy rules, contact endpoints, and backup data.
         </p>
       </div>
 
@@ -84,6 +87,44 @@ export const AdminSettingsPage: React.FC = () => {
                 value={settings.supportPhone}
                 onChange={(e) => setSettings({ ...settings, supportPhone: e.target.value })}
                 className="input-field text-xs py-2 font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2: Clear-The-Exam Refund Rules */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 space-y-4 shadow-sm">
+          <h2 className="text-sm font-bold text-navy-500 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <span>₹2,000 Refund Policy Verification Thresholds</span>
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block font-bold text-gray-700 mb-1">Incentive Amount (₹)</label>
+              <input
+                type="number"
+                value={settings.refundAmount}
+                onChange={(e) => setSettings({ ...settings, refundAmount: Number(e.target.value) })}
+                className="input-field text-xs py-2"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-gray-700 mb-1">Claim Window (Days from Result)</label>
+              <input
+                type="number"
+                value={settings.claimWindowDays}
+                onChange={(e) => setSettings({ ...settings, claimWindowDays: Number(e.target.value) })}
+                className="input-field text-xs py-2"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-gray-700 mb-1">Minimum Live Attendance (%)</label>
+              <input
+                type="number"
+                value={settings.minAttendancePercent}
+                onChange={(e) => setSettings({ ...settings, minAttendancePercent: Number(e.target.value) })}
+                className="input-field text-xs py-2"
               />
             </div>
           </div>

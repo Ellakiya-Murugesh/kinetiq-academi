@@ -13,6 +13,7 @@ import {
   FolderDown,
   FileQuestion,
   Award,
+  RefreshCcw,
   MessageSquare,
   Bell,
   Settings,
@@ -35,9 +36,9 @@ export const AdminLayout: React.FC = () => {
     document.title = `${BRAND_NAME} | Admin Portal`;
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/admin/login');
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   const navItems = [
@@ -50,6 +51,7 @@ export const AdminLayout: React.FC = () => {
     { name: 'Materials', path: '/admin/materials', icon: FolderDown },
     { name: 'Tests', path: '/admin/tests', icon: FileQuestion },
     { name: 'Results', path: '/admin/results', icon: Award },
+    { name: 'Refund Requests', path: '/admin/refunds', icon: RefreshCcw },
     { name: 'Enquiries', path: '/admin/enquiries', icon: MessageSquare },
     { name: 'Announcements', path: '/admin/announcements', icon: Bell },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
@@ -68,7 +70,7 @@ export const AdminLayout: React.FC = () => {
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div className="flex items-center gap-2">
-            <BrandLogo className="w-[82px] h-auto rounded-sm" />
+            <BrandLogo className="h-[52px] w-[42px] rounded-sm object-contain" />
             <span className="font-extrabold text-sm tracking-tight text-white">
               Admin Portal
             </span>
@@ -105,7 +107,7 @@ export const AdminLayout: React.FC = () => {
           <div className="p-5 border-b border-navy-800 flex items-center justify-between">
             <Link to="/admin/dashboard" className="flex items-center gap-2.5 min-w-0">
               <span className="bg-white rounded-md p-1 shrink-0">
-                <BrandLogo className="w-[104px] h-auto" />
+                <BrandLogo className="h-[60px] w-12 object-contain" />
               </span>
               <div className="flex flex-col">
                 <span className="font-black text-sm text-white tracking-tight">
@@ -197,7 +199,7 @@ export const AdminLayout: React.FC = () => {
           {/* Quick Search */}
           <div className="flex items-center gap-6">
             <Link to="/admin/dashboard" aria-label={`${BRAND_NAME} admin dashboard`}>
-              <BrandLogo className="w-[92px] h-auto" />
+              <BrandLogo className="h-[60px] w-12 object-contain" />
             </Link>
             <div className="relative w-80 xl:w-96">
             <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -242,6 +244,10 @@ export const AdminLayout: React.FC = () => {
                     </span>
                   </div>
                   <div className="space-y-2 text-xs text-gray-600">
+                    <div className="p-2 bg-blue-50/60 rounded-xl border border-blue-100">
+                      <p className="font-bold text-navy-500">New Refund Request Submitted</p>
+                      <p className="text-[11px] text-gray-500">Ananya Sharma (GATE Chemistry) filed ₹2,000 refund claim.</p>
+                    </div>
                     <div className="p-2 bg-emerald-50/60 rounded-xl border border-emerald-100">
                       <p className="font-bold text-navy-500">New Student Enrolled</p>
                       <p className="text-[11px] text-gray-500">Rahul Verma paid ₹10,000 for GATE Physics.</p>

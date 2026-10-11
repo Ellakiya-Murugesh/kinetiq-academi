@@ -79,7 +79,14 @@ export async function authenticateToken(req, res, next) {
     return res.status(401).json({ message: 'Session expired or invalid. Please log in again.' });
   }
 
-  const user = await findUserById(decoded.id);
+  let user;
+  try {
+    user = await findUserById(decoded.id);
+  } catch (error) {
+    const diagnostic = error?.code || error?.name || 'unknown database error';
+    console.error(`Session account lookup failed (${diagnostic}).`);
+    return res.status(503).json({ message: 'Account services are temporarily unavailable. Please try again shortly.' });
+  }
   if (
     !user ||
     user.status !== 'ACTIVE' ||
@@ -102,14 +109,20 @@ export async function requireAdmin(req, res, next) {
 }
 
 export async function requireStudent(req, res, next) {
-  await authenticateToken(req, res, () => {
+  return authenticateToken(req, res, async () => {
     if (req.user.role !== 'STUDENT') {
       return res.status(403).json({ message: 'Access denied. Student privileges required.' });
     }
-    return findStudentByUserId(req.user.id).then((student) => {
-      if (!student) return res.status(404).json({ message: 'Student profile not found.' });
-      req.student = student;
-      return next();
-    });
+    let student;
+    try {
+      student = await findStudentByUserId(req.user.id);
+    } catch (error) {
+      const diagnostic = error?.code || error?.name || 'unknown database error';
+      console.error(`Student account lookup failed (${diagnostic}).`);
+      return res.status(503).json({ message: 'Student services are temporarily unavailable. Please try again shortly.' });
+    }
+    if (!student) return res.status(404).json({ message: 'Student profile not found.' });
+    req.student = student;
+    return next();
   });
 }

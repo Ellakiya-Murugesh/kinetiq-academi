@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest } from '../../utils/api';
-import { FolderDown, Plus, Trash2, Edit, Lock, Globe, FileText, X } from 'lucide-react';
+import { GATE_MATERIAL_SUBJECTS } from '../../data/gateMaterialSubjects';
+import { Plus, Trash2, Edit, Lock, Globe, FileText, X } from 'lucide-react';
 
 export const AdminMaterialsPage: React.FC = () => {
   const [materials, setMaterials] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export const AdminMaterialsPage: React.FC = () => {
     subject: 'Chemistry',
     category: 'Study Notes',
     description: '',
-    fileUrl: '/downloads/study-material.pdf',
+    fileUrl: '',
     fileSize: '4.5 MB',
     pages: 40,
     accessLevel: 'Enrolled Students Only',
@@ -45,7 +46,7 @@ export const AdminMaterialsPage: React.FC = () => {
       subject: 'Chemistry',
       category: 'Study Notes',
       description: '',
-      fileUrl: '/downloads/study-material.pdf',
+      fileUrl: '',
       fileSize: '4.5 MB',
       pages: 40,
       accessLevel: 'Enrolled Students Only',
@@ -56,7 +57,7 @@ export const AdminMaterialsPage: React.FC = () => {
 
   const handleOpenEdit = (m: any) => {
     setEditingMat(m);
-    setFormData(m);
+    setFormData({ ...m, fileUrl: m.fileUrl || '' });
     setShowModal(true);
   };
 
@@ -239,8 +240,6 @@ export const AdminMaterialsPage: React.FC = () => {
                     className="select-field text-xs py-2"
                   >
                     <option value="GATE">GATE</option>
-                    <option value="UGC NET">UGC NET</option>
-                    <option value="CSIR NET">CSIR NET</option>
                   </select>
                 </div>
                 <div>
@@ -250,8 +249,9 @@ export const AdminMaterialsPage: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     className="select-field text-xs py-2"
                   >
-                    <option value="Chemistry">Chemistry</option>
-                    <option value="Physics">Physics</option>
+                    {GATE_MATERIAL_SUBJECTS.map((subject) => (
+                      <option key={subject.value} value={subject.value}>{subject.label}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -292,6 +292,21 @@ export const AdminMaterialsPage: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="input-field text-xs py-2 resize-none"
                 />
+              </div>
+
+              <div>
+                <label className="block font-bold text-gray-700 mb-1">Study Material File URL</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.fileUrl}
+                  onChange={(e) => setFormData({ ...formData, fileUrl: e.target.value })}
+                  placeholder="HTTPS URL or site-relative file path"
+                  className="input-field text-xs py-2"
+                />
+                <p className="mt-1 text-[10px] text-gray-500">
+                  Use an HTTPS link or a real file served from this site. No sample file is prefilled.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">

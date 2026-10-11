@@ -7,7 +7,7 @@ interface BrandLogoProps {
 }
 
 export const BrandLogo: React.FC<BrandLogoProps> = ({
-  className = 'h-12 w-auto',
+  className = 'h-12 w-auto object-contain',
   loading = 'lazy',
 }) => (
   <img

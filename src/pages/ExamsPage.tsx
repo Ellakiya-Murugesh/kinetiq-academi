@@ -24,7 +24,7 @@ export const ExamsPage: React.FC = () => {
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam && ['gate', 'ugc-net', 'csir-net'].includes(tabParam)) {
+    if (tabParam && ['gate'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
@@ -56,25 +56,17 @@ export const ExamsPage: React.FC = () => {
           </h1>
 
           <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-            Detailed syllabus blueprints, topic weightage, exam patterns, and academic pathways for GATE, UGC NET, and CSIR NET.
+            Detailed syllabus blueprints, topic weightage, exam patterns, and academic pathways for GATE preparation across key science and engineering branches.
           </p>
 
-          {/* Exam Switcher Tabs */}
           <div className="flex items-center justify-center gap-2 sm:gap-4 pt-6 flex-wrap">
-            {exams.map((exam) => (
-              <button
-                key={exam.id}
-                type="button"
-                onClick={() => handleTabChange(exam.id)}
-                className={`px-5 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 flex items-center gap-2 ${
-                  activeTab === exam.id
-                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30 scale-105'
-                    : 'bg-white text-navy-500 border border-gray-200 hover:border-primary-300 hover:bg-gray-50'
-                }`}
-              >
-                <span>{exam.name}</span>
-              </button>
-            ))}
+            <button
+              type="button"
+              onClick={() => handleTabChange('gate')}
+              className="px-5 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 flex items-center gap-2 bg-primary-500 text-white shadow-lg shadow-primary-500/30 scale-105"
+            >
+              <span>GATE</span>
+            </button>
           </div>
         </div>
       </section>

@@ -17,9 +17,7 @@ import {
   Menu,
   X,
   ExternalLink,
-  Sparkles,
-  ChevronRight,
-  ShieldCheck
+  ChevronRight
 } from 'lucide-react';
 
 export const StudentLayout: React.FC = () => {
@@ -31,8 +29,8 @@ export const StudentLayout: React.FC = () => {
     document.title = `${BRAND_NAME} | Student Portal`;
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    logout();
     navigate('/login');
   };
 
@@ -61,7 +59,7 @@ export const StudentLayout: React.FC = () => {
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div className="flex items-center gap-2">
-            <BrandLogo className="w-[78px] h-auto" />
+            <BrandLogo className="h-[52px] w-[42px] object-contain" />
             <span className="font-extrabold text-sm text-navy-500">
               Student LMS
             </span>
@@ -97,7 +95,7 @@ export const StudentLayout: React.FC = () => {
           {/* Header Brand */}
           <div className="p-5 border-b border-gray-100 flex items-center justify-between">
             <Link to="/student/dashboard" className="flex items-center gap-2.5 min-w-0">
-              <BrandLogo className="w-[104px] h-auto shrink-0" />
+              <BrandLogo className="h-[60px] w-12 shrink-0 object-contain" />
               <div className="flex flex-col">
                 <span className="font-black text-sm text-navy-500 tracking-tight">
                   {BRAND_NAME}
@@ -188,7 +186,7 @@ export const StudentLayout: React.FC = () => {
           {/* Left Greeting & Cohort Chip */}
           <div className="flex items-center gap-4">
             <Link to="/student/dashboard" aria-label={`${BRAND_NAME} student dashboard`}>
-              <BrandLogo className="w-[92px] h-auto" />
+              <BrandLogo className="h-[60px] w-12 object-contain" />
             </Link>
             <div className="flex items-center gap-3">
             <span className="text-sm font-bold text-navy-500">

@@ -321,6 +321,21 @@ export async function verifyEmailTransport() {
   await getTransporter().verify();
 }
 
+export async function sendAdminPasswordResetEmail({ email, name, resetUrl }) {
+  const safeName = escapeHtml(name || 'Administrator');
+  const safeUrl = escapeHtml(resetUrl);
+  const subject = `Administrator Password Reset – ${BRAND_NAME}`;
+  const text = `Hello ${name || 'Administrator'},\n\nUse this single-use link to reset your administrator password. It expires in 30 minutes:\n${resetUrl}\n\nIf you did not request this, you can ignore this email.`;
+  const html = `<!doctype html><html><body style="margin:0;background:#f3f6fa;font-family:Arial,sans-serif;color:#172b4d"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:24px 12px"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fff;border-radius:14px;overflow:hidden"><tr><td style="background:#00245c;color:#fff;padding:24px 28px;font-size:20px;font-weight:700">${BRAND_NAME}</td></tr><tr><td style="padding:28px"><p>Hello ${safeName},</p><p>Use the following single-use link to reset your administrator password. It expires in 30 minutes.</p><p style="margin:28px 0"><a href="${safeUrl}" style="background:#0755a5;color:#fff;text-decoration:none;padding:12px 18px;border-radius:9px;display:inline-block">Reset administrator password</a></p><p>If you did not request this, you can ignore this email.</p></td></tr></table></td></tr></table></body></html>`;
+  await getTransporter().sendMail({
+    from: `${BRAND_NAME} <${EMAIL_FROM}>`,
+    to: email,
+    subject,
+    text,
+    html,
+  });
+}
+
 export async function queueAdminTestEmail(user) {
   const notification = createEmailNotification({
     type: 'admin_test',

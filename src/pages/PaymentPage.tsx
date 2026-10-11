@@ -9,8 +9,8 @@ export const PaymentPage: React.FC = () => {
   return (
     <>
       <SEO
-        title="Enrollment & Fee Payment — 100-Day Coaching Program"
-        description="Enroll in the 100-Day GATE, UGC NET & CSIR NET Coaching Program for ₹10,000."
+        title="Enrollment & Fee Payment — GATE Coaching Program"
+        description="Enroll in the 100-Day GATE Coaching Program for ₹10,000."
       />
 
       {/* Header */}

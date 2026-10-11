@@ -92,7 +92,7 @@ export const StudentResultsPage: React.FC = () => {
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-[#00245C]">My Test Results & Scorecards</h1>
         <p className="text-sm text-gray-600 mt-1">
-          Track your preparation trajectory across GATE, CSIR NET, and UGC NET mock examinations.
+          Track your preparation trajectory across GATE mock tests and performance milestones.
         </p>
       </div>
 

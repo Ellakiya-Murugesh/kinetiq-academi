@@ -44,12 +44,12 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-10 lg:gap-8 pb-12 border-b border-navy-800">
           <div className="xl:col-span-2 space-y-4">
             <Link to="/" className="inline-flex bg-white rounded-md p-1.5">
-              <BrandLogo className="w-[168px] h-auto" />
+              <BrandLogo className="h-[90px] w-[72px] object-contain" />
             </Link>
             <p className="text-sm font-semibold text-gold-300">{BRAND_TAGLINE}</p>
             <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-              Structured online preparation for GATE in Chemistry and Physics.
-              Empowering research aspirations and academic careers through concept clarity and disciplined practice.
+              Structured online GATE preparation for Chemistry, Physics, Mechanical Engineering, Computer Science Engineering, and Electronics and Communication Engineering (ECE).
+              Empowering students to build strong fundamentals and prepare with clarity for postgraduate and research pathways.
             </p>
 
             <div className="pt-2">
@@ -77,33 +77,38 @@ export const Footer: React.FC = () => {
           </div>
 
           <div>
-            <h4 className="text-white font-bold text-base mb-4 tracking-wide">Exams</h4>
+            <h4 className="text-white font-bold text-base mb-4 tracking-wide">GATE Subjects</h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/exams?tab=gate" className="hover:text-primary-400 transition-colors">
-                  GATE Chemistry & Physics
-                </Link>
-              </li>
-              <li>
-                <Link to="/exams?tab=ugc-net" className="hover:text-primary-400 transition-colors">
-                  UGC NET Assistant Professor
-                </Link>
-              </li>
-              <li>
-                <Link to="/exams?tab=csir-net" className="hover:text-primary-400 transition-colors">
-                  CSIR NET Junior Research Fellowship
+                <Link to="/courses" className="hover:text-primary-400 transition-colors">
+                  GATE Chemistry
                 </Link>
               </li>
               <li>
                 <Link to="/courses" className="hover:text-primary-400 transition-colors">
-                  100-Day Integrated Program
+                  GATE Physics
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="hover:text-primary-400 transition-colors">
+                  GATE Mechanical Engineering
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="hover:text-primary-400 transition-colors">
+                  GATE CSE
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="hover:text-primary-400 transition-colors">
+                  GATE ECE
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold text-base mb-4 tracking-wide">Team Kinetiq</h4>
+            <h4 className="text-white font-bold text-base mb-4 tracking-wide">Company</h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link to="/about" className="hover:text-primary-400 transition-colors">
@@ -116,7 +121,9 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <span className="text-gray-500 cursor-not-allowed">Careers</span>
+                <Link to="/courses" className="hover:text-primary-400 transition-colors">
+                  GATE Courses
+                </Link>
               </li>
               <li>
                 <Link to="/payment" className="hover:text-primary-400 transition-colors">
@@ -193,8 +200,8 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/#faq" className="hover:text-primary-400 transition-colors">
-                  Frequently Asked Questions
+                <Link to="/contact" className="hover:text-primary-400 transition-colors">
+                  Contact Support
                 </Link>
               </li>
             </ul>
@@ -206,9 +213,9 @@ export const Footer: React.FC = () => {
           <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <p>
             <strong className="text-gray-300">Important Disclaimer:</strong> {BRAND_NAME} is an independent educational coaching initiative.
-            GATE, UGC NET, and CSIR NET are trademarks or registered trademarks of their respective organizing institutes/bodies.
-            All qualifications, exam rankings, admissions, and JRF awards are subject to official conducting body notifications and individual merit.
-            No guaranteed ranks or PhD admissions are claimed.
+            GATE is a trademark or registered trademark of its respective organizing institute or authority.
+            All qualifications, rankings, admissions, and research opportunities remain subject to official notifications and individual eligibility.
+            No guaranteed ranks or admissions are claimed.
           </p>
         </div>
 
@@ -219,6 +226,7 @@ export const Footer: React.FC = () => {
           <div className="flex flex-wrap items-center gap-6">
             <Link to="/privacy" className="hover:text-gray-300 transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-gray-300 transition-colors">Terms &amp; Conditions</Link>
+            <Link to="/refund" className="hover:text-gray-300 transition-colors text-primary-400 font-semibold">Refund Policy</Link>
           </div>
         </div>
       </div>

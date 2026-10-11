@@ -162,8 +162,6 @@ export const AdminStudentsPage: React.FC = () => {
             >
               <option value="All">All Exams</option>
               <option value="GATE">GATE</option>
-              <option value="UGC NET">UGC NET</option>
-              <option value="CSIR NET">CSIR NET</option>
             </select>
           </div>
 
@@ -474,8 +472,6 @@ export const AdminStudentsPage: React.FC = () => {
                     className="select-field text-xs py-2"
                   >
                     <option value="GATE">GATE</option>
-                    <option value="UGC NET">UGC NET</option>
-                    <option value="CSIR NET">CSIR NET</option>
                   </select>
                 </div>
                 <div>

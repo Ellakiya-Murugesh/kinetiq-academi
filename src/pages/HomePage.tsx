@@ -1,14 +1,13 @@
 import React from 'react';
 import { SEO } from '../components/ui/SEO';
 import { HeroSection } from '../components/ui/HeroSection';
-import { AcademyPreviewSection } from '../components/sections/AcademyPreviewSection';
 import { ExamSelector } from '../components/sections/ExamSelector';
-import { GatePaperCandidates } from '../components/sections/GatePaperCandidates';
 import { WhyPrepare } from '../components/sections/WhyPrepare';
 import { HowWeHelp } from '../components/sections/HowWeHelp';
 import { CTASection } from '../components/ui/CTASection';
-import { FeaturedGateCourses } from '../components/sections/FeaturedGateCourses';
+import { PricingSection } from '../components/sections/PricingSection';
 import { GuidanceCall } from '../components/sections/GuidanceCall';
+import { Testimonials } from '../components/sections/Testimonials';
 import { HomeFAQ } from '../components/sections/HomeFAQ';
 import {
   BRAND_HOME_DESCRIPTION,
@@ -28,14 +27,13 @@ export const HomePage: React.FC = () => {
       />
       <div className="space-y-0">
         <HeroSection />
-        <AcademyPreviewSection />
         <ExamSelector />
-        <GatePaperCandidates />
         <WhyPrepare />
         <HowWeHelp />
-        <FeaturedGateCourses />
         <CTASection />
+        <PricingSection />
         <GuidanceCall />
+        <Testimonials />
         <HomeFAQ />
       </div>
     </>

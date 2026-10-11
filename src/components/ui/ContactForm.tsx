@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2, PhoneCall, AlertCircle } from 'lucide-react';
+import { apiRequest } from '../../utils/api';
+
+const GATE_SUBJECT_OPTIONS = [
+  'Chemistry',
+  'Physics',
+  'Mechanical Engineering',
+  'Computer Science Engineering (CSE)',
+  'Electronics and Communication Engineering (ECE)',
+  'Others',
+] as const;
 
 interface ContactFormProps {
   mode?: 'guidance' | 'general';
@@ -18,12 +28,14 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     email: '',
     exam: 'GATE',
     subject: 'Chemistry',
+    otherSubject: '',
     message: '',
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const selectedSubjectLabel = formData.subject === 'Others' ? (formData.otherSubject.trim() || 'Others') : formData.subject;
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -36,6 +48,10 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       newErrors.phone = 'Phone Number is required';
     } else if (!/^[0-9+\s-]{10,15}$/.test(formData.phone.trim())) {
       newErrors.phone = 'Please enter a valid phone number (10-15 digits)';
+    }
+
+    if (formData.subject === 'Others' && !formData.otherSubject.trim()) {
+      newErrors.otherSubject = 'Please tell us your preferred subject';
     }
 
     if (mode === 'general') {
@@ -54,17 +70,35 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
 
-    // Simulate backend submission delay
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const payload = {
+        name: formData.fullName.trim(),
+        phone: formData.phone.trim(),
+        email: formData.email.trim(),
+        exam: formData.exam,
+        subject: formData.subject === 'Others' ? formData.otherSubject.trim() || 'Others' : formData.subject,
+        message: formData.message.trim(),
+      };
+
+      await apiRequest('/api/admin/public-enquiry', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
       setIsSubmitted(true);
-    }, 800);
+    } catch (submitError) {
+      setErrors({
+        submit: submitError instanceof Error ? submitError.message : 'Unable to submit your request right now. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -93,7 +127,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
           <p className="text-sm text-gray-600 max-w-md mx-auto">
             Thank you, <strong className="text-navy-500">{formData.fullName}</strong>. Our academic counselor will call you at{' '}
             <strong className="text-navy-500">{formData.phone}</strong> to guide you through your{' '}
-            <strong className="text-primary-600">{formData.exam} ({formData.subject})</strong> preparation roadmap.
+            <strong className="text-primary-600">{formData.exam} ({selectedSubjectLabel})</strong> preparation roadmap.
           </p>
           <button
             type="button"
@@ -105,6 +139,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 email: '',
                 exam: 'GATE',
                 subject: 'Chemistry',
+                otherSubject: '',
                 message: '',
               });
             }}
@@ -193,8 +228,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 className="select-field cursor-pointer font-medium"
               >
                 <option value="GATE">GATE</option>
-                <option value="UGC NET">UGC NET</option>
-                <option value="CSIR NET">CSIR NET</option>
               </select>
             </div>
 
@@ -205,12 +238,37 @@ export const ContactForm: React.FC<ContactFormProps> = ({
               <select
                 id="subject"
                 value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, subject: e.target.value, otherSubject: e.target.value === 'Others' ? formData.otherSubject : '' })}
                 className="select-field cursor-pointer font-medium"
               >
                 <option value="Chemistry">Chemistry</option>
                 <option value="Physics">Physics</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                <option value="Computer Science Engineering (CSE)">Computer Science Engineering (CSE)</option>
+                <option value="Electronics and Communication Engineering (ECE)">Electronics and Communication Engineering (ECE)</option>
+                <option value="Others">Others</option>
               </select>
+              {formData.subject === 'Others' && (
+                <div className="mt-3">
+                  <label htmlFor="otherSubject" className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">
+                    Preferred Subject <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="otherSubject"
+                    type="text"
+                    placeholder="Type your preferred GATE subject"
+                    value={formData.otherSubject}
+                    onChange={(e) => setFormData({ ...formData, otherSubject: e.target.value })}
+                    className={`input-field ${errors.otherSubject ? 'border-red-400 focus:ring-red-400' : ''}`}
+                  />
+                  {errors.otherSubject && (
+                    <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      {errors.otherSubject}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

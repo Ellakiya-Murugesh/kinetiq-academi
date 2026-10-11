@@ -5,6 +5,7 @@ import {
   UserCheck,
   CreditCard,
   Clock,
+  RefreshCcw,
   MessageSquare,
   Video,
   TrendingUp,
@@ -97,6 +98,14 @@ export const AdminDashboardPage: React.FC = () => {
       color: 'text-amber-600',
       bg: 'bg-amber-50',
       badge: '0 pending',
+    },
+    {
+      title: 'Refund Requests',
+      value: stats ? stats.refundRequests.toString() : '[DATA WILL APPEAR AFTER DATABASE CONNECTION]',
+      icon: RefreshCcw,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+      badge: '0 requests',
     },
     {
       title: 'Guidance Enquiries',
@@ -258,7 +267,7 @@ export const AdminDashboardPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-base text-navy-500">
-                Exam Distribution (GATE / UGC NET / CSIR NET)
+                Exam Distribution (GATE)
               </h3>
               <p className="text-xs text-gray-400">Distribution of registered target exams</p>
             </div>

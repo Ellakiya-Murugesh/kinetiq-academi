@@ -1,61 +1,62 @@
-function clearLegacyBrowserSession(): void {
-  try {
-    localStorage.removeItem('gate_auth_token');
-    localStorage.removeItem('gate_auth_user');
-  } catch {
-    // The API session is held in an httpOnly cookie; local storage is not required.
+// Central API client with JWT header injection & fallback handlers
+
+const TOKEN_KEY = 'gate_auth_token';
+const USER_KEY = 'gate_auth_user';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+
+export class ApiRequestError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+    this.name = 'ApiRequestError';
   }
 }
 
-const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
-const apiBaseUrl = configuredApiBaseUrl
-  ? (() => {
-      let parsed: URL;
-      try {
-        parsed = new URL(configuredApiBaseUrl);
-      } catch {
-        throw new Error('VITE_API_BASE_URL must be an absolute HTTP or HTTPS URL.');
-      }
-      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-        throw new Error('VITE_API_BASE_URL must use HTTP or HTTPS.');
-      }
-      return parsed.origin;
-    })()
-  : '';
-
 function resolveApiUrl(endpoint: string): string {
   if (/^https?:\/\//i.test(endpoint)) return endpoint;
+
   const path = endpoint.startsWith('/api')
     ? endpoint
     : `/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-  return apiBaseUrl ? new URL(path, `${apiBaseUrl}/`).toString() : path;
+
+  if (import.meta.env.DEV) {
+    // In local development, Vite proxies /api to the local Express server.
+    return path;
+  }
+
+  if (API_BASE_URL) {
+    const baseUrl = API_BASE_URL.replace(/\/api\/?$/i, '');
+    return `${baseUrl}${path}`;
+  }
+
+  throw new Error('API configuration is missing. Set VITE_API_BASE_URL to the deployed Render API URL.');
 }
 
-export function getStoredToken(): null {
-  return null;
+export function getStoredToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
 }
 
-export function setStoredToken(_token: string): void {
-  clearLegacyBrowserSession();
+export function setStoredToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
 }
 
 export function removeStoredToken(): void {
-  clearLegacyBrowserSession();
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
 }
 
-export function getStoredUser(): null {
-  return null;
+export function getStoredUser(): any | null {
+  const raw = localStorage.getItem(USER_KEY);
+  return raw ? JSON.parse(raw) : null;
 }
 
-export function setStoredUser(_user: unknown): void {
-  clearLegacyBrowserSession();
+export function setStoredUser(user: any): void {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 export async function downloadApiFile(endpoint: string, filename: string): Promise<void> {
-  const fullUrl = resolveApiUrl(endpoint);
-  const response = await fetch(fullUrl, {
-    credentials: 'include',
-    headers: { 'X-Kinetiq-Request': '1' },
+  const token = getStoredToken();
+  const response = await fetch(resolveApiUrl(endpoint), {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
 
   if (!response.ok) {
@@ -77,23 +78,26 @@ export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const token = getStoredToken();
   const headers = new Headers(options.headers || {});
+
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
-  headers.set('X-Kinetiq-Request', '1');
 
-  const fullUrl = resolveApiUrl(endpoint);
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
 
-  const response = await fetch(fullUrl, {
+  const response = await fetch(resolveApiUrl(endpoint), {
     ...options,
-    credentials: 'include',
     headers,
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || errorData.error || `Request failed with status ${response.status}`);
+    const message = errorData.message || errorData.error || `Request failed with status ${response.status}`;
+    throw new ApiRequestError(message, response.status);
   }
 
   return response.json();
@@ -109,39 +113,45 @@ export interface ApiResponse<T = any> {
 export const api = {
   get: async <T = any>(endpoint: string): Promise<ApiResponse<T>> => {
     try {
-      return { success: true, data: await apiRequest<T>(endpoint) };
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Error executing request' };
+      const data = await apiRequest<T>(endpoint);
+      return { success: true, data };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Error executing request' };
     }
   },
 
   post: async <T = any>(endpoint: string, body?: any): Promise<ApiResponse<T>> => {
     try {
-      return {
-        success: true,
-        data: await apiRequest<T>(endpoint, { method: 'POST', body: JSON.stringify(body) }),
-      };
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Error executing request' };
+      const data = await apiRequest<T>(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      return { success: true, data };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Error executing request' };
     }
   },
 
   put: async <T = any>(endpoint: string, body?: any): Promise<ApiResponse<T>> => {
     try {
-      return {
-        success: true,
-        data: await apiRequest<T>(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
-      };
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Error executing request' };
+      const data = await apiRequest<T>(endpoint, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      });
+      return { success: true, data };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Error executing request' };
     }
   },
 
   delete: async <T = any>(endpoint: string): Promise<ApiResponse<T>> => {
     try {
-      return { success: true, data: await apiRequest<T>(endpoint, { method: 'DELETE' }) };
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Error executing request' };
+      const data = await apiRequest<T>(endpoint, {
+        method: 'DELETE',
+      });
+      return { success: true, data };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Error executing request' };
     }
   },
 };

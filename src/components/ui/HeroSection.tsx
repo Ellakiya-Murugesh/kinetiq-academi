@@ -16,7 +16,7 @@ export const HeroSection: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-4xl grid-cols-1 items-center gap-12 lg:gap-8">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:gap-8">
           <div className="space-y-6 text-center lg:text-left">
             {/* Batch Open Tag */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-50 border border-primary-200/80 text-primary-600 text-xs sm:text-sm font-bold shadow-sm">
@@ -25,7 +25,7 @@ export const HeroSection: React.FC = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-navy-500 tracking-tight leading-[1.15]">
+            <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-navy-500 tracking-tight leading-[1.15]">
               Prepare for GATE with{' '}
               <span className="text-primary-500 underline decoration-primary-200 decoration-wavy decoration-2">
                 Confidence

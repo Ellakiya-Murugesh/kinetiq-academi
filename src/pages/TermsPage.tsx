@@ -39,14 +39,14 @@ export const TermsPage: React.FC = () => {
           <div>
             <h2 className="text-xl font-bold text-navy-500 mb-2">2. Single-User License &amp; Copyright</h2>
             <p>
-              Course subscriptions, live session links, and downloadable study materials (notes, PYQ solutions, test sheets) are granted under a non-exclusive, non-transferable, single-user license strictly for the personal academic preparation of the enrolled student. Sharing portal login credentials, recording live lectures without authorization, or redistributing materials on Telegram, WhatsApp, or public forums is strictly prohibited and may result in immediate termination and potential copyright enforcement.
+              Course subscriptions, live session links, and downloadable study materials (notes, PYQ solutions, test sheets) are granted under a non-exclusive, non-transferable, single-user license strictly for the personal academic preparation of the enrolled student. Sharing portal login credentials, recording live lectures without authorization, or redistributing materials on Telegram, WhatsApp, or public forums is strictly prohibited and subject to immediate termination without refund and potential copyright enforcement.
             </p>
           </div>
 
           <div>
             <h2 className="text-xl font-bold text-navy-500 mb-2">3. No Guarantee of Exam Selection or Ranking</h2>
             <p>
-              {BRAND_NAME} provides structured coaching, pedagogical methodology, practice tests, and mentor guidance. However, competitive examination outcomes (GATE score, AIR rank, UGC NET qualification, CSIR JRF cutoff, PhD admission, PSU recruitment, or employment) depend entirely on individual candidate dedication, institutional seat availability, and independent conducting agency evaluation. We do not make or imply any guarantee of selection, rank, or appointment.
+              {BRAND_NAME} provides structured coaching, pedagogical methodology, practice tests, and mentor guidance. However, GATE outcomes, AIR rank, postgraduate admissions, PSU recruitment, and related career opportunities depend entirely on individual candidate dedication, institutional seat availability, and independent conducting agency evaluation. We do not make or imply any guarantee of selection, rank, or appointment.
             </p>
           </div>
 

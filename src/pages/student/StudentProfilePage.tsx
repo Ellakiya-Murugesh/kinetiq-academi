@@ -69,6 +69,7 @@ export const StudentProfilePage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (saving) return;
     setMessage(null);
     if (!profile.name.trim() || !profile.email.trim()) {
       setMessage({ type: 'error', text: 'Enter your name and email address.' });
@@ -76,27 +77,35 @@ export const StudentProfilePage: React.FC = () => {
     }
 
     setSaving(true);
-    const result = await api.put<{ user: { name: string; email: string } }>('/student/profile', profile);
-    setSaving(false);
-    if (!result.success) {
-      setMessage({ type: 'error', text: result.error || 'Your profile could not be saved. Please try again.' });
-      return;
+    try {
+      const result = await api.put<{ user: { name: string; email: string } }>('/student/profile', profile);
+      if (!result.success) {
+        setMessage({ type: 'error', text: result.error || 'Your profile could not be saved. Please try again.' });
+        return;
+      }
+      const profileCompleted = [
+        profile.dateOfBirth,
+        profile.gender,
+        profile.address,
+        profile.qualification,
+        profile.college,
+        profile.gatePaper,
+        profile.gateAttemptYear,
+      ].every((value) => value.trim());
+      updateUser({ name: profile.name.trim(), email: profile.email.trim(), profileCompleted });
+      if (isCompletion) {
+        navigate('/student/dashboard', { replace: true });
+        return;
+      }
+      setMessage({ type: 'success', text: 'Your profile has been updated.' });
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Your profile could not be saved. Please try again.',
+      });
+    } finally {
+      setSaving(false);
     }
-    const profileCompleted = [
-      profile.dateOfBirth,
-      profile.gender,
-      profile.address,
-      profile.qualification,
-      profile.college,
-      profile.gatePaper,
-      profile.gateAttemptYear,
-    ].every((value) => value.trim());
-    updateUser({ name: profile.name, email: profile.email, profileCompleted });
-    if (isCompletion) {
-      navigate('/student/dashboard', { replace: true });
-      return;
-    }
-    setMessage({ type: 'success', text: 'Your profile has been updated.' });
   };
 
   if (loading) {
@@ -211,3 +220,5 @@ function Field({ label, required, children }: { label: string; required?: boolea
     </label>
   );
 }
+
+export default StudentProfilePage;

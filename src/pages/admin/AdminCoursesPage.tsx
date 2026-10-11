@@ -27,6 +27,7 @@ export const AdminCoursesPage: React.FC = () => {
     duration: '100 Days Intensive',
     startDate: '2026-11-01',
     fee: 10000,
+    refundAmount: 2000,
     status: 'Published',
   });
 
@@ -56,6 +57,7 @@ export const AdminCoursesPage: React.FC = () => {
       duration: '100 Days Intensive',
       startDate: '2026-11-01',
       fee: 10000,
+      refundAmount: 2000,
       status: 'Published',
     });
     setShowModal(true);
@@ -71,6 +73,7 @@ export const AdminCoursesPage: React.FC = () => {
       duration: course.duration,
       startDate: course.startDate,
       fee: course.fee,
+      refundAmount: course.refundAmount,
       status: course.status,
     });
     setShowModal(true);
@@ -128,7 +131,7 @@ export const AdminCoursesPage: React.FC = () => {
             Course Management
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            Create, publish, and configure preparation programs for GATE, UGC NET, and CSIR NET.
+            Create, publish, and configure GATE preparation programs for Chemistry and Physics.
           </p>
         </div>
 
@@ -196,6 +199,10 @@ export const AdminCoursesPage: React.FC = () => {
                 <div className="flex justify-between">
                   <span>Standard Fee:</span>
                   <strong className="text-navy-500">₹{course.fee.toLocaleString()}</strong>
+                </div>
+                <div className="flex justify-between text-emerald-700">
+                  <span>Performance Refund:</span>
+                  <strong>₹{course.refundAmount.toLocaleString()} (20%)</strong>
                 </div>
                 <div className="flex justify-between text-primary-600">
                   <span>Enrolled Aspirants:</span>
@@ -268,8 +275,6 @@ export const AdminCoursesPage: React.FC = () => {
                     className="select-field text-xs py-2"
                   >
                     <option value="GATE">GATE</option>
-                    <option value="UGC NET">UGC NET</option>
-                    <option value="CSIR NET">CSIR NET</option>
                   </select>
                 </div>
                 <div>
@@ -324,6 +329,15 @@ export const AdminCoursesPage: React.FC = () => {
                     type="number"
                     value={formData.fee}
                     onChange={(e) => setFormData({ ...formData, fee: Number(e.target.value) })}
+                    className="input-field text-xs py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-gray-700 mb-1">Refund Amount (₹)</label>
+                  <input
+                    type="number"
+                    value={formData.refundAmount}
+                    onChange={(e) => setFormData({ ...formData, refundAmount: Number(e.target.value) })}
                     className="input-field text-xs py-2"
                   />
                 </div>

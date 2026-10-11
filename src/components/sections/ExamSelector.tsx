@@ -23,8 +23,12 @@ export const ExamSelector: React.FC = () => {
           </p>
         </div>
 
-        {/* 3 Exam Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Exam Cards Grid */}
+        <div
+          className={`grid grid-cols-1 gap-8 ${
+            exams.length > 1 ? 'md:grid-cols-2 lg:grid-cols-3' : 'max-w-md mx-auto'
+          }`}
+        >
           {exams.map((exam) => (
             <ExamCard key={exam.id} exam={exam} />
           ))}

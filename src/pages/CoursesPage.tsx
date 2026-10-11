@@ -43,7 +43,7 @@ export const CoursesPage: React.FC = () => {
             </h1>
 
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
-              Our structured, fast-paced curriculum designed to cover complete exam syllabi for GATE, UGC NET, and CSIR NET in Chemistry and Physics.
+              Our structured, fast-paced curriculum is designed to build conceptual depth and exam readiness for GATE preparation across Chemistry, Physics, and core engineering disciplines.
             </p>
           </div>
 

@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Bell, Calendar, Search, X,
 } from 'lucide-react';
-import { api } from '../../utils/api';
+import { ApiRequestError, apiRequest } from '../../utils/api';
 
 type AnnouncementPriority = 'Urgent' | 'High' | 'Medium' | 'Low';
 
@@ -27,27 +28,33 @@ export const StudentAnnouncementsPage: React.FC = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
+  const [needsLogin, setNeedsLogin] = useState(false);
   const [filterPriority, setFilterPriority] = useState<'All' | AnnouncementPriority>('All');
   const [filterCategory, setFilterCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const fetchAnnouncements = async () => {
-      setLoading(true);
-      setLoadError('');
-      try {
-        const res = await api.get<Announcement[]>('/student/announcements');
-        if (!res.success || !res.data) throw new Error(res.error || 'Could not load announcements.');
-        setAnnouncements(res.data);
-      } catch (err) {
-        setLoadError(err instanceof Error ? err.message : 'Could not load announcements.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchAnnouncements();
+  const fetchAnnouncements = useCallback(async () => {
+    setLoading(true);
+    setLoadError('');
+    setNeedsLogin(false);
+    try {
+      const response = await apiRequest<unknown>('/api/student/announcements');
+      if (!Array.isArray(response)) throw new Error('Invalid announcements response.');
+      setAnnouncements(response);
+    } catch (err) {
+      const authorizationFailure = err instanceof ApiRequestError && [401, 403].includes(err.status);
+      setNeedsLogin(authorizationFailure);
+      setLoadError(authorizationFailure
+        ? 'Your student session is no longer authorized. Sign in again to view announcements.'
+        : 'Announcements are temporarily unavailable. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void fetchAnnouncements();
+  }, [fetchAnnouncements]);
 
   const categories = useMemo(
     () => [...new Set(announcements.map((announcement) => announcement.category || 'General'))].sort(),
@@ -151,11 +158,16 @@ export const StudentAnnouncementsPage: React.FC = () => {
         ) : loadError ? (
           <div className="bg-rose-50 rounded-2xl p-8 text-center border border-rose-100" role="alert">
             <p className="text-rose-800 font-medium">{loadError}</p>
+            {needsLogin
+              ? <Link to="/login" className="mt-3 inline-block text-sm font-semibold text-rose-900 underline underline-offset-2">Sign in</Link>
+              : <button type="button" onClick={() => void fetchAnnouncements()} className="mt-3 text-sm font-semibold text-rose-900 underline underline-offset-2">Retry</button>}
           </div>
         ) : filteredAnnouncements.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-gray-100">
             <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-600 font-medium">No announcements found</p>
+            <p className="text-gray-600 font-medium">
+              {announcements.length === 0 ? 'No announcements available yet.' : 'No announcements found'}
+            </p>
           </div>
         ) : (
           filteredAnnouncements.map((announcement) => {

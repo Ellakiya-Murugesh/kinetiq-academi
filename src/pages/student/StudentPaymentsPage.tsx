@@ -3,7 +3,6 @@ import {
   CreditCard, CheckCircle2, Download, Receipt,
   ShieldCheck, AlertCircle, Printer, Calendar
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { api, downloadApiFile } from '../../utils/api';
 import { BRAND_NAME } from '../../config/brand';
 
@@ -18,14 +17,11 @@ interface PaymentRecord {
   paymentMethod: string;
   status: string;
   transactionId: string;
-  enrollmentFlow?: string;
 }
 
 interface PaymentsResponse {
   payments: PaymentRecord[];
 }
-
-const SEEDED_DEMO_PAYMENT_IDS = new Set(['pay-101', 'pay-102', 'pay-103', 'pay-104', 'pay-105']);
 
 export const StudentPaymentsPage: React.FC = () => {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
@@ -41,7 +37,7 @@ export const StudentPaymentsPage: React.FC = () => {
     try {
       const res = await api.get<PaymentsResponse>('/student/payments');
       if (res.success && res.data) {
-        setPayments((res.data.payments || []).filter((payment) => !SEEDED_DEMO_PAYMENT_IDS.has(payment.id)));
+        setPayments(res.data.payments || []);
       }
     } catch (err) {
       console.error('Failed to load payments:', err);
@@ -77,7 +73,7 @@ export const StudentPaymentsPage: React.FC = () => {
         </p>
       </div>
 
-          {/* Transaction Records */}
+      {/* Transaction Records */}
       <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
         <h2 className="text-lg font-bold text-[#00245C] mb-4 flex items-center gap-2">
           <Receipt className="w-5 h-5 text-[#00245C]" /> Payment History
@@ -94,7 +90,7 @@ export const StudentPaymentsPage: React.FC = () => {
             <table className="w-full text-left text-sm text-gray-600">
               <thead className="bg-gray-50 text-xs uppercase text-gray-400 border-b border-gray-100">
                 <tr>
-                  <th className="py-3 px-4">Payment / Transaction ID</th>
+                  <th className="py-3 px-4">Transaction ID</th>
                   <th className="py-3 px-4">Enrolled Course</th>
                   <th className="py-3 px-4">Amount</th>
                   <th className="py-3 px-4">Payment Method</th>
@@ -126,34 +122,18 @@ export const StudentPaymentsPage: React.FC = () => {
                       })}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1 ${
-                        ['Paid', 'Payment Verified'].includes(p.status)
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : ['Pending', 'Payment Pending', 'Payment Verification Pending'].includes(p.status)
-                          ? 'bg-amber-50 text-amber-800'
-                          : 'bg-rose-50 text-rose-700'
-                      }`}>
-                        {['Paid', 'Payment Verified'].includes(p.status)
-                          ? <CheckCircle2 className="w-3 h-3" />
-                          : <AlertCircle className="w-3 h-3" />}
-                        {p.status}
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 inline-flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> {p.status}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      {['Paid', 'Payment Verified'].includes(p.status) ? (
+                      {p.status === 'Paid' ? (
                         <button
                           onClick={() => setSelectedReceipt(p)}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 hover:border-primary-400 hover:text-primary-700 rounded-lg text-xs font-medium transition"
                         >
                           <Receipt className="w-3.5 h-3.5" /> View Receipt
                         </button>
-                      ) : p.enrollmentFlow === 'upi-gate' ? (
-                        <Link
-                          to={`/student/payment/${encodeURIComponent(p.id)}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 hover:border-primary-400 hover:text-primary-700 rounded-lg text-xs font-medium transition"
-                        >
-                          {['Payment Verification Pending', 'Payment Verified', 'Payment Failed'].includes(p.status) ? 'View status' : 'Continue'}
-                        </Link>
                       ) : (
                         <span className="text-xs text-gray-400">Available after payment</span>
                       )}

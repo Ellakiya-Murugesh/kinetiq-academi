@@ -210,6 +210,22 @@ export async function initializeDatabaseSchema(db) {
     { status: 1, nextAttemptAt: 1, createdAt: 1 },
     { name: 'email_notification_queue' }
   );
+  await db.collection('studentMobileOtpChallenges').createIndex(
+    { challengeId: 1 },
+    { unique: true, sparse: true, name: 'student_mobile_otp_challenge_unique' }
+  );
+  await db.collection('studentMobileOtpChallenges').createIndex(
+    { expiresAt: 1 },
+    { expireAfterSeconds: 0, name: 'student_mobile_otp_expiry' }
+  );
+  await db.collection('adminPasswordResetTokens').createIndex(
+    { tokenHash: 1 },
+    { unique: true, name: 'admin_password_reset_token_hash_unique' }
+  );
+  await db.collection('adminPasswordResetTokens').createIndex(
+    { expiresAt: 1 },
+    { expireAfterSeconds: 0, name: 'admin_password_reset_expiry' }
+  );
 }
 
 export async function connectDatabase() {
@@ -218,7 +234,9 @@ export async function connectDatabase() {
 
   const missing = ['MONGODB_URI', 'MONGODB_DB_NAME'].filter((name) => !process.env[name]?.trim());
   if (missing.length) {
-    throw new Error(`Required server environment variables are missing: ${missing.join(', ')}. Configure them in .env or the server process environment.`);
+    const error = new Error(`Required server environment variables are missing: ${missing.join(', ')}. Configure them in .env or the server process environment.`);
+    error.code = 'MONGODB_CONFIGURATION_MISSING';
+    throw error;
   }
 
   connectionPromise = (async () => {

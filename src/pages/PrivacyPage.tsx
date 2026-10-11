@@ -32,7 +32,7 @@ export const PrivacyPage: React.FC = () => {
           <div>
             <h2 className="text-xl font-bold text-navy-500 mb-2">1. Introduction</h2>
             <p>
-              {BRAND_NAME} (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;) is committed to protecting your privacy and ensuring the confidentiality of your personal information. This Privacy Policy details our practices concerning data collection, usage, and safeguarding when you use our website, mobile interface, and online coaching services for GATE, UGC NET, and CSIR NET preparation.
+              {BRAND_NAME} (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;) is committed to protecting your privacy and ensuring the confidentiality of your personal information. This Privacy Policy details our practices concerning data collection, usage, and safeguarding when you use our website, mobile interface, and online coaching services for GATE preparation.
             </p>
           </div>
 
@@ -41,8 +41,9 @@ export const PrivacyPage: React.FC = () => {
             <p className="mb-2">We collect information that you directly provide when registering, submitting guidance requests, or completing enrollment:</p>
             <ul className="list-disc list-inside space-y-1.5 pl-2 text-gray-600">
               <li><strong>Contact Information:</strong> Name, email address, WhatsApp/phone number.</li>
-              <li><strong>Academic Data:</strong> Target examination (GATE, UGC NET, CSIR NET), subject preference (Chemistry, Physics), and institutional background.</li>
+              <li><strong>Academic Data:</strong> Target examination (GATE), subject preference (Chemistry, Physics), and institutional background.</li>
               <li><strong>Payment Transactions:</strong> Transaction identifiers, payment timestamps, and billing details processed through secure gateway providers. We do not store raw credit card credentials.</li>
+              <li><strong>Verification Records:</strong> Exam admit cards and qualifying scorecards submitted for claiming the ₹2,000 performance incentive refund.</li>
             </ul>
           </div>
 
@@ -51,6 +52,7 @@ export const PrivacyPage: React.FC = () => {
             <ul className="list-disc list-inside space-y-1.5 pl-2 text-gray-600">
               <li>To schedule and deliver live online coaching lectures, workshops, and tests.</li>
               <li>To communicate batch announcements, class links, and syllabus schedules.</li>
+              <li>To verify qualifying credentials for the 20% refund incentive scheme.</li>
               <li>To answer student queries and provide academic counseling.</li>
             </ul>
           </div>

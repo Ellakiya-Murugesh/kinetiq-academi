@@ -49,7 +49,7 @@ export const ContactPage: React.FC = () => {
     <>
       <SEO
         title="Contact Us — Academic Admissions & Support"
-        description={`Get in touch with ${BRAND_NAME} admissions advisors for guidance on GATE, UGC NET and CSIR NET preparation in Chemistry and Physics.`}
+        description={`Get in touch with ${BRAND_NAME} admissions advisors for guidance on GATE preparation across Chemistry, Physics, Mechanical Engineering, Computer Science Engineering, and Electronics and Communication Engineering (ECE).`}
       />
 
       <section className="bg-gradient-to-b from-primary-50/60 to-white py-14 sm:py-20 border-b border-gray-100">

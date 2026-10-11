@@ -1,31 +1,69 @@
-import React, { useState, useEffect } from 'react';
-import { apiRequest } from '../../utils/api';
-import { FolderDown, Search, Download, Eye, FileText, CheckCircle2, X } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ApiRequestError, apiRequest } from '../../utils/api';
+import { GATE_MATERIAL_SUBJECTS, type GateMaterialSubject } from '../../data/gateMaterialSubjects';
+import { Search, Download, Eye, FileText } from 'lucide-react';
+
+function canonicalSubject(subject: unknown): string {
+  const normalized = String(subject ?? '').trim().toLowerCase().replace(/[\s_-]+/g, ' ');
+  const aliases: Record<string, GateMaterialSubject> = {
+    cse: 'CSE',
+    'gate cse': 'CSE',
+    'computer science engineering': 'CSE',
+    'computer science engineering (cse)': 'CSE',
+    'computer science and engineering': 'CSE',
+    'computer science & information technology': 'CSE',
+    it: 'IT',
+    'information technology': 'IT',
+    me: 'ME',
+    'gate me': 'ME',
+    mechanical: 'ME',
+    'mechanical engineering': 'ME',
+    ece: 'ECE',
+    'gate ece': 'ECE',
+    'electronics and communication engineering': 'ECE',
+    'electronics and communication engineering (ece)': 'ECE',
+    chemistry: 'Chemistry',
+    'gate cy': 'Chemistry',
+    physics: 'Physics',
+    ph: 'Physics',
+    'gate ph': 'Physics',
+  };
+  return aliases[normalized] || normalized;
+}
 
 export const StudentMaterialsPage: React.FC = () => {
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [needsLogin, setNeedsLogin] = useState(false);
   const [search, setSearch] = useState('');
-  const [examTab, setExamTab] = useState<'All' | 'GATE' | 'UGC NET' | 'CSIR NET'>('All');
-  const [subjectFilter, setSubjectFilter] = useState<'All' | 'Chemistry' | 'Physics'>('All');
+  const [examTab, setExamTab] = useState<'All' | 'GATE'>('All');
+  const [subjectFilter, setSubjectFilter] = useState<'All' | GateMaterialSubject>('All');
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
-  const [previewDoc, setPreviewDoc] = useState<any | null>(null);
+
+  const fetchMaterials = useCallback(async () => {
+    setLoading(true);
+    setLoadError('');
+    setNeedsLogin(false);
+    try {
+      const response = await apiRequest<unknown>('/api/student/materials');
+      if (!Array.isArray(response)) throw new Error('Invalid study materials response.');
+      setMaterials(response);
+    } catch (error) {
+      const authorizationFailure = error instanceof ApiRequestError && [401, 403].includes(error.status);
+      setNeedsLogin(authorizationFailure);
+      setLoadError(authorizationFailure
+        ? 'Your student session is no longer authorized. Sign in again to view study materials.'
+        : 'Study materials are temporarily unavailable. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchMaterials = async () => {
-      try {
-        setLoading(true);
-        const res = await apiRequest('/api/student/materials');
-        setMaterials(res);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMaterials();
-  }, []);
+    void fetchMaterials();
+  }, [fetchMaterials]);
 
   const categories = [
     'All',
@@ -38,11 +76,11 @@ export const StudentMaterialsPage: React.FC = () => {
 
   const filtered = materials.filter((m) => {
     const matchExam = examTab === 'All' || m.exam === examTab;
-    const matchSubject = subjectFilter === 'All' || m.subject === subjectFilter;
+    const matchSubject = subjectFilter === 'All' || canonicalSubject(m.subject) === subjectFilter;
     const matchCategory = categoryFilter === 'All' || m.category === categoryFilter;
-    const matchSearch =
-      m.title.toLowerCase().includes(search.toLowerCase()) ||
-      m.description.toLowerCase().includes(search.toLowerCase());
+    const query = search.toLocaleLowerCase();
+    const matchSearch = [m.title, m.description]
+      .some((value) => String(value || '').toLocaleLowerCase().includes(query));
 
     return matchExam && matchSubject && matchCategory && matchSearch;
   });
@@ -63,7 +101,7 @@ export const StudentMaterialsPage: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Exam Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto">
-            {(['All', 'GATE', 'UGC NET', 'CSIR NET'] as const).map((ex) => (
+            {(['All', 'GATE'] as const).map((ex) => (
               <button
                 key={ex}
                 type="button"
@@ -94,22 +132,25 @@ export const StudentMaterialsPage: React.FC = () => {
 
         {/* Subject & Category Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-gray-400 uppercase">Subject:</span>
-            {(['All', 'Chemistry', 'Physics'] as const).map((sub) => (
-              <button
-                key={sub}
-                type="button"
-                onClick={() => setSubjectFilter(sub)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold ${
-                  subjectFilter === sub
-                    ? 'bg-navy-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {sub}
-              </button>
-            ))}
+          <div className="min-w-0 overflow-x-auto">
+            <div className="flex w-max items-center gap-2">
+              <span className="text-xs font-bold text-gray-400 uppercase">Subject:</span>
+              {GATE_MATERIAL_SUBJECTS.map((subject) => (
+                <button
+                  key={subject.value}
+                  type="button"
+                  aria-pressed={subjectFilter === subject.value}
+                  onClick={() => setSubjectFilter(subject.value)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap ${
+                    subjectFilter === subject.value
+                      ? 'bg-navy-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {subject.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex items-center gap-1.5 overflow-x-auto">
@@ -135,9 +176,16 @@ export const StudentMaterialsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
           <div className="col-span-3 text-center py-12 text-xs text-gray-400">Loading resources...</div>
+        ) : loadError ? (
+          <div className="col-span-3 rounded-2xl border border-rose-100 bg-rose-50 p-8 text-center text-sm text-rose-800" role="alert">
+            <p>{loadError}</p>
+            {needsLogin
+              ? <Link to="/login" className="mt-3 inline-block font-semibold underline">Sign in</Link>
+              : <button type="button" onClick={() => void fetchMaterials()} className="mt-3 font-semibold underline">Retry</button>}
+          </div>
         ) : filtered.length === 0 ? (
           <div className="col-span-3 bg-white p-8 rounded-2xl text-center text-xs text-gray-400 border border-gray-200">
-            No matching materials found.
+            {materials.length === 0 ? 'No study materials available yet.' : 'No matching materials found.'}
           </div>
         ) : (
           filtered.map((mat) => (
@@ -165,7 +213,7 @@ export const StudentMaterialsPage: React.FC = () => {
                 </div>
 
                 <p className="text-xs text-gray-500 line-clamp-3 mb-4">
-                  {mat.description}
+                  {mat.description || ''}
                 </p>
 
                 <div className="text-[11px] text-gray-400 mb-2">
@@ -174,72 +222,36 @@ export const StudentMaterialsPage: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPreviewDoc(mat)}
-                  className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1 font-semibold"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>View Online</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alert(`Starting download for ${mat.title} (${mat.fileSize})`)}
-                  className="btn-primary text-xs py-1.5 px-3.5 flex items-center gap-1 font-semibold shadow-sm"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download</span>
-                </button>
+                {mat.fileUrl ? (
+                  <>
+                    <a
+                      href={mat.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1 font-semibold"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>View Online</span>
+                    </a>
+                    <a
+                      href={mat.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-primary text-xs py-1.5 px-3.5 flex items-center gap-1 font-semibold shadow-sm"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Open / Download</span>
+                    </a>
+                  </>
+                ) : (
+                  <span className="text-xs text-gray-400">File not available</span>
+                )}
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* Document Reader Modal */}
-      {previewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-              <h3 className="text-lg font-bold text-navy-500">
-                {previewDoc.title}
-              </h3>
-              <button onClick={() => setPreviewDoc(null)} className="p-1.5 text-gray-400 hover:text-gray-600">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-8 bg-gray-50 rounded-2xl border border-gray-200 text-center space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center mx-auto">
-                <FileText className="w-7 h-7" />
-              </div>
-              <p className="text-xs font-mono text-gray-500">
-                [IN-BROWSER DOCUMENT VIEWER: {previewDoc.fileUrl}]
-              </p>
-              <p className="text-xs text-gray-600">
-                {previewDoc.pages} Pages of high-yield study notes and solved problem sets.
-              </p>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setPreviewDoc(null)} className="btn-secondary text-xs px-4 py-2">
-                Close Viewer
-              </button>
-              <button
-                onClick={() => {
-                  alert(`Downloading ${previewDoc.title}`);
-                  setPreviewDoc(null);
-                }}
-                className="btn-primary text-xs px-5 py-2 flex items-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download PDF</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
