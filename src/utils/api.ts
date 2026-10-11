@@ -2,7 +2,10 @@
 
 const TOKEN_KEY = 'gate_auth_token';
 const USER_KEY = 'gate_auth_user';
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? 'https://kinetiqacademi.onrender.com' : '')
+).trim().replace(/\/+$/, '');
 
 export class ApiRequestError extends Error {
   constructor(message: string, readonly status: number) {

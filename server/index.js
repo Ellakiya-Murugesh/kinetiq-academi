@@ -1,37 +1,17 @@
 import express from 'express';
-import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import adminAuthRoutes from './routes/adminAuth.js';
 import adminRoutes from './routes/admin.js';
 import studentRoutes from './routes/student.js';
+import { createCorsMiddleware } from './cors.js';
 import { BRAND_NAME } from '../shared/brand.js';
 import { closeDatabase, connectDatabase, pingDatabase } from './db.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.set('trust proxy', 1);
-const ALLOWED_ORIGINS = [
-  process.env.FRONTEND_URL,
-  process.env.APP_ORIGIN,
-  ...(process.env.NODE_ENV === 'production'
-    ? []
-    : ['http://localhost:5173', 'http://127.0.0.1:5173']),
-]
-  .filter(Boolean)
-  .flatMap((value) => String(value).split(','))
-  .map((value) => new URL(value.trim()).origin);
 
-app.use(cors({
-  origin(origin, callback) {
-    if (!origin || ALLOWED_ORIGINS.includes(new URL(origin).origin)) {
-      callback(null, true);
-      return;
-    }
-    callback(null, false);
-  },
-  allowedHeaders: ['Authorization', 'Content-Type'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-}));
+app.use(createCorsMiddleware());
 app.use(express.json());
 
 app.use('/api', (req, res, next) => {

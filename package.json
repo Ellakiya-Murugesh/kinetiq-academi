@@ -8,7 +8,7 @@
     "start": "node --env-file-if-exists=.env server/index.js",
     "start:api": "node --env-file-if-exists=.env server/index.js",
     "build": "tsc && vite build",
-    "test": "node --test server/services/studentMobileOtp.test.js server/services/emailNotifications.test.js server/routes/studentProfile.test.js server/routes/studentDashboard.test.js server/routes/studentMaterials.test.js server/routes/adminAuth.test.js server/scripts/provision-admin.test.js",
+    "test": "node --test server/cors.test.js server/services/studentMobileOtp.test.js server/services/emailNotifications.test.js server/routes/studentProfile.test.js server/routes/studentDashboard.test.js server/routes/studentMaterials.test.js server/routes/adminAuth.test.js server/scripts/provision-admin.test.js",
     "preview": "vite preview",
     "test:email": "node --test server/services/emailNotifications.test.js",
     "provision:admin": "node --env-file-if-exists=.env server/scripts/provision-admin.js",
