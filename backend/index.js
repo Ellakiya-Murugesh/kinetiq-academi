@@ -25,6 +25,20 @@ app.use('/api/admin-auth', adminAuthRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/student', studentRoutes);
 
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: `${BRAND_NAME} API Server`,
+    health: '/api/health',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.redirect(301, '/api/health');
+});
+
 app.get('/api/health', async (req, res) => {
   try {
     await pingDatabase();

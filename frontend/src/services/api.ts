@@ -4,7 +4,7 @@ const TOKEN_KEY = 'gate_auth_token';
 const USER_KEY = 'gate_auth_user';
 const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.PROD ? 'https://kinetiqacademi.onrender.com' : '')
+  (import.meta.env.PROD ? 'https://kinetiq-academi-api.onrender.com' : '')
 ).trim().replace(/\/+$/, '');
 
 export class ApiRequestError extends Error {
@@ -28,10 +28,11 @@ function resolveApiUrl(endpoint: string): string {
 
   if (API_BASE_URL) {
     const baseUrl = API_BASE_URL.replace(/\/api\/?$/i, '');
-    return `${baseUrl}${path}`;
+    if (baseUrl) return `${baseUrl}${path}`;
   }
 
-  throw new Error('API configuration is missing. Set VITE_API_BASE_URL to the deployed Render API URL.');
+  // Fallback to relative path which Netlify proxies to Render via _redirects
+  return path;
 }
 
 export function getStoredToken(): string | null {

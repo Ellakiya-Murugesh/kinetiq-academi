@@ -50,9 +50,13 @@ export function createCorsMiddleware(env = process.env) {
       }
 
       const normalizedOrigin = parseOrigin(origin);
-      callback(null, normalizedOrigin && allowedOrigins.has(normalizedOrigin)
-        ? normalizedOrigin
-        : false);
+      const isAllowed = Boolean(
+        normalizedOrigin && (
+          allowedOrigins.has(normalizedOrigin) ||
+          /^https:\/\/[a-z0-9-]+--gentle-caramel-c38a2b\.netlify\.app$/i.test(normalizedOrigin)
+        )
+      );
+      callback(null, isAllowed ? normalizedOrigin : false);
     },
     allowedHeaders: CORS_HEADERS,
     methods: CORS_METHODS,

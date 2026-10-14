@@ -13,7 +13,7 @@ frontend does not start the API.
 - Backend start: `npm ci` followed by `npm run start:api`.
 - Set `PORT` as required by the backend host. The API binds to `0.0.0.0` in
   production.
-- The production build uses `VITE_API_BASE_URL=https://kinetiqacademi.onrender.com`
+- The production build uses `VITE_API_BASE_URL=https://kinetiq-academi-api.onrender.com`
   to send API requests to the backend. This is a public build-time URL, not a
   secret. Override it in the frontend host's build environment only when using a
   different backend.
