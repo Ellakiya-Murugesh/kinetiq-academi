@@ -94,6 +94,7 @@ async function createHarness({
   requireAdmin = true,
   now = () => new Date('2026-01-01T00:00:00.000Z'),
   sendResetEmail = async () => {},
+  findCredentials,
 } = {}) {
   const adminHash = await bcrypt.hash(initialPassword, 4);
   const users = [
@@ -135,8 +136,7 @@ async function createHarness({
       resetEmails.push(message);
       await sendResetEmail(message);
     },
-    findCredentials: async (identifier) =>
-      users.find((user) => user.email.toLowerCase() === identifier.toLowerCase()) ?? null,
+    ...(findCredentials ? { findCredentials } : {}),
     createSession: async (user) => ({
       token: 'test-session',
       user: { id: user.id, email: user.email, role: user.role },
@@ -199,6 +199,29 @@ test('admin login accepts a valid administrator and rejects invalid or non-admin
     const student = await harness.request('/login', { identifier: 'student@example.test', password: initialPassword });
     assert.equal(student.status, 401);
     assert.match(student.body.message, /Invalid administrator email or password/);
+  } finally {
+    await harness.close();
+  }
+});
+
+test('admin login resolves a matching admin email rather than a colliding student identifier', async () => {
+  const harness = await createHarness({
+    otherUsers: [{
+      id: 'admin@example.test',
+      name: 'Student With Colliding ID',
+      email: 'student@example.test',
+      passwordHash: await bcrypt.hash(initialPassword, 4),
+      role: 'STUDENT',
+      status: 'ACTIVE',
+    }],
+  });
+  try {
+    const response = await harness.request('/login', {
+      identifier: ' ADMIN@example.test ',
+      password: initialPassword,
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.body.user.role, 'ADMIN');
   } finally {
     await harness.close();
   }

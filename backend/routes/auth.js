@@ -13,19 +13,12 @@ import {
 } from '../db.js';
 import { JWT_SECRET, authenticateToken } from '../middleware/auth.js';
 import { ensureGateCourse, getGateCourse } from '../utils/gateEnrollment.js';
-import {
-  createMsg91OtpProvider,
-  createStudentMobileOtpService,
-  normalizePhone as normalizeMobileOtpPhone,
-} from '../services/studentMobileOtp.js';
 
 const router = express.Router();
 const otpChallenges = new Map();
 const registrationChallenges = new Map();
 const OTP_TTL_MS = 5 * 60 * 1000;
 const MAX_OTP_ATTEMPTS = 5;
-const STUDENT_MOBILE_OTP_MESSAGE =
-  'If an eligible student account matches, a verification code has been sent to its registered mobile number.';
 const REGISTRATION_COURSE_CODES = new Set([
   'GATE-CY',
   'GATE-PH',
@@ -171,174 +164,6 @@ const mobileOtpLimiter = rateLimit({
   legacyHeaders: false,
   handler: (_req, res) => res.status(429).json({ message: 'Too many OTP requests. Please wait before trying again.' }),
 });
-
-const studentMobileOtpService = createStudentMobileOtpService({
-  provider: createMsg91OtpProvider(),
-  getCollection: () => getMongoDatabase().collection('studentMobileOtpChallenges'),
-});
-
-export function createStudentMobileOtpRouter({
-  service = studentMobileOtpService,
-  findStudent = (phone) => getMongoDatabase().collection('users').findOne({
-    mobileNormalized: phone,
-    status: 'ACTIVE',
-    role: 'STUDENT',
-  }),
-  createSession = issueSession,
-} = {}) {
-  const studentOtpRouter = express.Router();
-  const requestLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 5,
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (_req, res) => res.status(429).json({
-      message: 'Too many OTP requests. Please wait before trying again.',
-    }),
-  });
-  const verifyLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 20,
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (_req, res) => res.status(429).json({
-      message: 'Too many verification attempts. Please wait before trying again.',
-    }),
-  });
-
-  studentOtpRouter.post('/request', requestLimiter, async (req, res) => {
-    const submittedPhone = String(req.body?.phone ?? '').trim();
-    if (!isValidIndianMobile(submittedPhone)) {
-      return res.status(400).json({ message: 'Enter a valid 10-digit Indian mobile number.' });
-    }
-
-    const phone = normalizeMobileOtpPhone(submittedPhone);
-    let user;
-    try {
-      user = await findStudent(phone);
-    } catch (error) {
-      const diagnostic = error?.code || error?.name || 'unknown database error';
-      console.error(`Student mobile OTP account lookup failed (${diagnostic}).`);
-      return res.status(503).json({ message: 'Login is temporarily unavailable. Please try again later.' });
-    }
-
-    if (!user || user.role !== 'STUDENT' || user.status !== 'ACTIVE') {
-      return res.json({
-        message: STUDENT_MOBILE_OTP_MESSAGE,
-        challengeId: randomBytes(32).toString('base64url'),
-        expiresInSeconds: OTP_TTL_MS / 1000,
-        resendAfterSeconds: 60,
-      });
-    }
-
-    const result = await service.request(user);
-    if (result.status === 'cooldown') {
-      return res.status(429).json({
-        message: `Please wait ${result.retryAfterSeconds} seconds before requesting another OTP.`,
-        retryAfterSeconds: result.retryAfterSeconds,
-      });
-    }
-    if (result.status === 'locked') {
-      return res.status(429).json({
-        message: 'Too many incorrect codes were entered. Please wait before requesting another OTP.',
-        retryAfterSeconds: result.retryAfterSeconds,
-      });
-    }
-    if (result.status === 'delivery-failed') {
-      const messages = {
-        MSG91_NOT_CONFIGURED: {
-          status: 503,
-          message: 'MSG91 SMS is not configured. Set MSG91_AUTH_KEY and MSG91_TEMPLATE_ID in the backend environment.',
-        },
-        MSG91_AUTH_FAILED: {
-          status: 503,
-          message: 'MSG91 authentication failed. Check the MSG91 auth key configured for this backend.',
-        },
-        MSG91_RATE_LIMITED: {
-          status: 503,
-          message: 'MSG91 is temporarily rate-limiting requests. Please try again later.',
-        },
-        MSG91_UNAVAILABLE: {
-          status: 502,
-          message: 'MSG91 is temporarily unavailable. Please try again later.',
-        },
-        MSG91_INVALID_MOBILE: {
-          status: 502,
-          message: 'The registered mobile number could not be submitted to MSG91.',
-        },
-        MSG91_MALFORMED_RESPONSE: {
-          status: 502,
-          message: 'MSG91 returned an unexpected response. Please try again later.',
-        },
-        MSG91_REJECTED: {
-          status: 502,
-          message: 'MSG91 rejected the OTP request. Check the active template and account configuration.',
-        },
-      };
-      const failure = messages[result.code] || messages.MSG91_UNAVAILABLE;
-      return res.status(failure.status).json({ message: failure.message });
-    }
-
-    return res.json({
-      message: STUDENT_MOBILE_OTP_MESSAGE,
-      challengeId: result.challengeId,
-      expiresInSeconds: OTP_TTL_MS / 1000,
-      resendAfterSeconds: 60,
-    });
-  });
-
-  studentOtpRouter.post('/verify', verifyLimiter, async (req, res) => {
-    const phoneInput = String(req.body?.phone ?? '').trim();
-    const challengeId = String(req.body?.challengeId ?? '');
-    const code = String(req.body?.code ?? '');
-    if (
-      !isValidIndianMobile(phoneInput) ||
-      !/^[A-Za-z0-9_-]{43}$/.test(challengeId) ||
-      code.length === 0 ||
-      code.length > 32
-    ) {
-      return res.status(400).json({ message: 'Enter a valid mobile number and six-digit verification code.' });
-    }
-
-    const phone = normalizeMobileOtpPhone(phoneInput);
-    let user;
-    try {
-      user = await findStudent(phone);
-    } catch (error) {
-      const diagnostic = error?.code || error?.name || 'unknown database error';
-      console.error(`Student mobile OTP verification lookup failed (${diagnostic}).`);
-      return res.status(503).json({ message: 'Login is temporarily unavailable. Please try again later.' });
-    }
-    if (!user || user.role !== 'STUDENT' || user.status !== 'ACTIVE') {
-      return res.status(401).json({ message: 'Invalid verification code or account.' });
-    }
-
-    const result = await service.verify(user, phone, challengeId, code);
-    if (result.status === 'verified') return res.json(await createSession(result.user));
-    if (result.status === 'expired') {
-      return res.status(401).json({ message: 'Verification code expired. Request a new code.' });
-    }
-    if (result.status === 'too-many-attempts') {
-      return res.status(429).json({ message: 'Too many incorrect attempts. Request a new code.' });
-    }
-    if (result.status === 'incorrect') {
-      return res.status(401).json({ message: 'Incorrect verification code.' });
-    }
-    if (result.status === 'provider-failed') {
-      const authFailure = result.code === 'MSG91_AUTH_FAILED' || result.code === 'MSG91_NOT_CONFIGURED';
-      return res.status(authFailure ? 503 : 502).json({
-        message: authFailure
-          ? 'MSG91 verification is not configured correctly. Check the backend MSG91 credentials.'
-          : 'MSG91 verification is temporarily unavailable. Please try again later.',
-      });
-    }
-    return res.status(401).json({ message: 'Invalid verification code or account.' });
-  });
-
-  return studentOtpRouter;
-}
-
-router.use('/student/mobile-otp', createStudentMobileOtpRouter());
 
 export function registrationConflictExists(db, email, phone) {
   const normalizedEmail = String(email || '').trim().toLowerCase();

@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { getMongoClient, getMongoDatabase, findUserByCredentials } from '../db.js';
+import { getMongoClient, getMongoDatabase } from '../db.js';
 import { requireAdmin } from '../middleware/auth.js';
 import { issueSession } from './auth.js';
 import { sendAdminPasswordResetEmail } from '../services/emailNotifications.js';
@@ -59,7 +59,13 @@ export function createAdminAuthRouter({
   getClient = getMongoClient,
   requireAdminMiddleware = requireAdmin,
   sendResetEmail = sendAdminPasswordResetEmail,
-  findCredentials = findUserByCredentials,
+  findCredentials = (email) => getDatabase().collection('users').findOne(
+    { email, role: 'ADMIN', status: 'ACTIVE' },
+    {
+      collation: { locale: 'en', strength: 2 },
+      projection: { id: 1, name: 1, email: 1, phone: 1, role: 1, status: 1, passwordHash: 1, sessionVersion: 1 },
+    }
+  ),
   createSession = issueSession,
   comparePassword = bcrypt.compare,
   hashPassword = (password) => bcrypt.hash(password, 12),

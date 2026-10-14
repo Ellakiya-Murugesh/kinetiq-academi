@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node --env-file-if-exists=../.env index.js",
-    "test": "node --test tests/cors.test.js tests/emailNotifications.test.js tests/auth.test.js tests/studentProfile.test.js tests/studentDashboard.test.js tests/studentCourse.test.js tests/studentMaterials.test.js tests/studentEnrollment.test.js tests/adminAuth.test.js tests/adminCatalog.test.js tests/adminDashboard.test.js tests/adminStudentDirectory.test.js tests/provision-admin.test.js tests/reset-admin-password.test.js tests/rotate-admin-credentials.test.js tests/studentMobileOtp.test.js",
+    "test": "node --test tests/cors.test.js tests/emailNotifications.test.js tests/auth.test.js tests/studentProfile.test.js tests/studentDashboard.test.js tests/studentCourse.test.js tests/studentMaterials.test.js tests/studentEnrollment.test.js tests/adminAuth.test.js tests/adminCatalog.test.js tests/adminDashboard.test.js tests/adminStudentDirectory.test.js tests/provision-admin.test.js tests/reset-admin-password.test.js tests/rotate-admin-credentials.test.js",
     "test:email": "node --test tests/emailNotifications.test.js",
     "provision:admin": "node --env-file-if-exists=../.env scripts/provision-admin.js",
     "migrate:local-data-to-mongodb": "node --env-file-if-exists=../.env scripts/migrate-local-data-to-mongodb.js",

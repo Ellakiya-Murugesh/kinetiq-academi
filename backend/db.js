@@ -215,14 +215,6 @@ export async function initializeDatabaseSchema(db) {
     { status: 1, nextAttemptAt: 1, createdAt: 1 },
     { name: 'email_notification_queue' }
   );
-  await db.collection('studentMobileOtpChallenges').createIndex(
-    { challengeId: 1 },
-    { unique: true, sparse: true, name: 'student_mobile_otp_challenge_unique' }
-  );
-  await db.collection('studentMobileOtpChallenges').createIndex(
-    { expiresAt: 1 },
-    { expireAfterSeconds: 0, name: 'student_mobile_otp_expiry' }
-  );
   await db.collection('adminPasswordResetTokens').createIndex(
     { tokenHash: 1 },
     { unique: true, name: 'admin_password_reset_token_hash_unique' }

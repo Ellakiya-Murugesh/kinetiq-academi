@@ -28,8 +28,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (identifier: string, password: string, explicitRole?: UserRole) => Promise<User>;
-  loginWithOtp: (phone: string, code: string, explicitRole?: UserRole) => Promise<User>;
-  loginWithStudentMobileOtp: (phone: string, challengeId: string, code: string) => Promise<User>;
+  loginWithOtp: (phone: string, code: string) => Promise<User>;
   logout: () => void;
   updateUser: (updatedFields: Partial<User>) => void;
 }
@@ -88,34 +87,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithOtp = async (phone: string, code: string, explicitRole?: UserRole): Promise<User> => {
+  const loginWithOtp = async (phone: string, code: string): Promise<User> => {
     setIsLoading(true);
     try {
       const data = await apiRequest<{ token: string; user: User }>('/api/auth/otp/verify', {
         method: 'POST',
-        body: JSON.stringify({ phone, code, role: explicitRole }),
-      });
-
-      setToken(data.token);
-      setUser(data.user);
-      setStoredToken(data.token);
-      setStoredUser(data.user);
-      return data.user;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loginWithStudentMobileOtp = async (
-    phone: string,
-    challengeId: string,
-    code: string
-  ): Promise<User> => {
-    setIsLoading(true);
-    try {
-      const data = await apiRequest<{ token: string; user: User }>('/api/auth/student/mobile-otp/verify', {
-        method: 'POST',
-        body: JSON.stringify({ phone, challengeId, code }),
+        body: JSON.stringify({ phone, code, role: 'ADMIN' }),
       });
 
       setToken(data.token);
@@ -156,7 +133,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         loginWithOtp,
-        loginWithStudentMobileOtp,
         logout,
         updateUser,
       }}
