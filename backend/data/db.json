@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "id": "usr-admin-1",
+      "email": "admin@gateprep.com",
+      "phone": "9876500001",
+      "passwordHash": "$2a$10$fVpA35rE1nK0bFj2ZtS0uOH8V8X.j4.9M8wzW8sT3A8s5yP1.1z7a",
+      "name": "Academic Director",
+      "role": "ADMIN",
+      "createdAt": "2026-08-01T10:00:00.000Z",
+      "status": "ACTIVE"
+    }
+  ],
+  "students": [],
+  "courses": [],
+  "enrollments": [],
+  "payments": [],
+  "liveSessions": [],
+  "materials": [],
+  "tests": [],
+  "results": [],
+  "refunds": [],
+  "enquiries": [],
+  "announcements": []
+}

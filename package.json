@@ -3,46 +3,24 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "concurrently -k \"npm run start:api\" \"vite\"",
-    "start": "node --env-file-if-exists=.env server/index.js",
-    "start:api": "node --env-file-if-exists=.env server/index.js",
-    "build": "tsc && vite build",
-    "test": "node --test server/cors.test.js server/services/studentMobileOtp.test.js server/services/emailNotifications.test.js server/routes/studentProfile.test.js server/routes/studentDashboard.test.js server/routes/studentMaterials.test.js server/routes/adminAuth.test.js server/scripts/provision-admin.test.js",
-    "preview": "vite preview",
-    "test:email": "node --test server/services/emailNotifications.test.js",
-    "provision:admin": "node --env-file-if-exists=.env server/scripts/provision-admin.js",
-    "reset:admin-password": "node server/scripts/reset-admin-password.js"
+    "dev": "concurrently -k \"npm run start:api\" \"npm run dev --workspace frontend\"",
+    "start": "npm run start:api",
+    "start:api": "npm run start --workspace backend",
+    "build": "npm run build --workspace frontend",
+    "test": "npm test --workspace backend",
+    "preview": "npm run preview --workspace frontend",
+    "test:email": "npm run test:email --workspace backend",
+    "provision:admin": "npm run provision:admin --workspace backend",
+    "migrate:local-data-to-mongodb": "npm run migrate:local-data-to-mongodb --workspace backend",
+    "reset:admin-password": "npm run reset:admin-password --workspace backend",
+    "rotate:admin-credentials": "npm run rotate:admin-credentials --workspace backend"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.1.2",
-    "autoprefixer": "^10.6.1",
-    "concurrently": "^10.0.5",
-    "postcss": "^8.5.29",
-    "tailwindcss": "^3.4.19",
-    "typescript": "~6.0.2",
-    "vite": "^8.3.0"
-  },
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.7.1",
-    "jsonwebtoken": "^9.0.3",
-    "lucide-react": "^1.52.0",
-    "mongodb": "^6.21.0",
-    "nodemailer": "^10.1.0",
-    "pdfkit": "^0.20.2",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "react-helmet-async": "^3.0.0",
-    "react-router-dom": "^7.18.4",
-    "recharts": "^3.10.1"
+    "concurrently": "^10.0.5"
   }
 }

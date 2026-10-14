@@ -1,0 +1,31 @@
+{
+  "name": "@kinetiq-academi/backend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=../.env index.js",
+    "test": "node --test tests/cors.test.js tests/emailNotifications.test.js tests/auth.test.js tests/studentProfile.test.js tests/studentDashboard.test.js tests/studentCourse.test.js tests/studentMaterials.test.js tests/studentEnrollment.test.js tests/adminAuth.test.js tests/adminCatalog.test.js tests/adminDashboard.test.js tests/adminStudentDirectory.test.js tests/provision-admin.test.js tests/reset-admin-password.test.js tests/rotate-admin-credentials.test.js tests/studentMobileOtp.test.js",
+    "test:email": "node --test tests/emailNotifications.test.js",
+    "provision:admin": "node --env-file-if-exists=../.env scripts/provision-admin.js",
+    "migrate:local-data-to-mongodb": "node --env-file-if-exists=../.env scripts/migrate-local-data-to-mongodb.js",
+    "reset:admin-password": "node --env-file-if-exists=../.env scripts/reset-admin-password.js",
+    "rotate:admin-credentials": "node --env-file-if-exists=../.env scripts/rotate-admin-credentials.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^6.21.0",
+    "nodemailer": "^10.1.0",
+    "pdfkit": "^0.20.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10"
+  }
+}

@@ -3,7 +3,7 @@
 ## Runtime and deployment shape
 
 The project has a Vite frontend and a separate Express/MongoDB API. Deploy the
-frontend build output (`dist/`) to the frontend host, and run `npm run start:api`
+frontend build output (`frontend/dist/`) to the frontend host, and run `npm run start:api`
 as a persistent Node.js backend service. Building or deploying only the Vite
 frontend does not start the API.
 
